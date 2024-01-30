@@ -5,6 +5,7 @@ const  bodyParser = require('body-parser')
 const session = require('express-session')
 const cors = require("cors");
 const OauthRouter = require("./app/Routes/Oauth.route");
+const UserRouter = require("./app/Routes/User.route");
 const passport = require('passport');
 const cookieSession = require('cookie-session');
 require("dotenv").config();
@@ -32,6 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 
 app.use('/', OauthRouter)
+app.use('/api/user', UserRouter)
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to review application !" });
