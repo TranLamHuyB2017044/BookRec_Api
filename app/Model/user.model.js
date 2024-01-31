@@ -1,5 +1,6 @@
 const db = require('../config/db');
-const crypto = require('crypto-js');
+const CryptoJS = require('crypto-js');
+require("dotenv").config();
 
 class User {
     constructor(UserDetail) {
@@ -12,10 +13,10 @@ class User {
         this.admin_role = UserDetail.admin_role === 'true' ? 1 : 0
     }
 
-    static hashPassword(password) {
-        const hashedPassword = crypto.SHA256(password).toString(crypto.enc.Hex);
-        return hashedPassword;
-    }
+    static encryptPassword = (plaintextPassword, secretKey, iv) => {
+        const encryptedPassword = CryptoJS.AES.encrypt(plaintextPassword, secretKey, { iv: iv }).toString();
+        return encryptedPassword;
+    };
 
     static isEmailUnique(email) {
         const query = 'SELECT email FROM USERS WHERE email = ?';
@@ -31,17 +32,20 @@ class User {
         }
         console.log('isunique')
         const query = 'INSERT INTO USERS SET ?';
-        const userDataWithHashedPassword = { ...newUser, pass_word: this.hashPassword(newUser.pass_word) };
+        const userDataWithHashedPassword = { ...newUser, pass_word: this.encryptPassword(newUser.pass_word, process.env.SECRET_AESKEY, {iv: process.env.iv}) };
+        console.log(newUser.pass_word)
         const result = await db.query(query, userDataWithHashedPassword);
         return result;
     }
 
-    static async getOneUser(email, password, cb) {
-        const query = 'SELECT * FROM users WHERE email = ? AND password = ?'
-        await db.query(query,[email, password], (err, result) => {
-            if(err) return cb(err, null);
-            cb(null, result);
-        })
+    static async getOneUser(email) {
+        const query = 'SELECT * FROM users WHERE email = ?'
+        const result = await db.query(query,[email])
+        const [data] = result[0].map(user => user)
+        if(data === undefined){
+            throw new Error('Could not find your email address')
+        }
+        return data
     }
 
 }

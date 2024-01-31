@@ -1,5 +1,7 @@
 const User = require('../Model/user.model')
 const cloudinary = require("cloudinary").v2;
+const crypto = require('crypto-js');
+require("dotenv").config();
 
 exports.Register = async (req, res) => {
     const newUser = new User({
@@ -13,7 +15,7 @@ exports.Register = async (req, res) => {
     });
     try {
         const result = await User.createUser(newUser);
-        res.status(200).json(result);
+        res.status(200).json(result[0]);
     } catch (err) {
         if(err.message == 'Email already exists.'){
             if (req.file) {
@@ -31,8 +33,20 @@ exports.Register = async (req, res) => {
 
 exports.Login = async (req, res) => {
     const {email, password} = req.body
-    User.getOneUser(email, password, (err, user) => {
-        
-    })
-
+    try {
+        const data = await User.getOneUser(email)
+        const passwordEncrypt = data.pass_word
+        const DecryptText = crypto.AES.decrypt(passwordEncrypt, process.env.SECRET_AESKEY, {iv: process.env.iv})
+        const passwordDecrypted = DecryptText.toString(crypto.enc.Utf8)
+        if(passwordDecrypted !== password.toString()){
+            return res.status(401).json('wrong password')
+        }
+        const {pass_word, ...other} = data
+        res.status(200).json(other)
+    } catch (error) {
+        if(error.message === "Could not find your email address"){
+            return res.status(500).json("Could not find your email address");
+        }
+        return res.status(500).json(error.message);
+    }
 }
