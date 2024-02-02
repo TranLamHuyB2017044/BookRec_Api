@@ -31,10 +31,15 @@ class Book{
     }
 
 
-    static async getCategory(){
-        const query = `SELECT DISTINCT category FROM books `
-        const result = await db.query(query)
-        return result[0]
+    static async getFilterBook(condition, startIndex, itemsPerPage){
+        const authorQuery = 'Join book_authors ba on b.book_id = ba.book_id join authors a on ba.author_id = a.author_id' 
+        const publisherQuery = 'Join book_publishers bp on b.book_id = bp.book_id join publishers p on bp.publisher_id = p.publisher_id' 
+        const manufacturerQuery = 'Join book_manufacturers bm on b.book_id = bm.book_id join manufacturer m on bm.manufacturer_id = m.manufacturer_id' 
+        let query = `SELECT a.author_name, p.publisher_name, b.title, b.quantity_sold, b.avg_rating, b.original_price, b.discount, c.thumbnail_url FROM books b join cover_books c on b.book_id = c.book_id ${authorQuery} ${publisherQuery} ${manufacturerQuery}  where 1=1 ${condition}`
+        query += ` LIMIT ${startIndex}, ${itemsPerPage}`;
+        // const hidden = 'TRIM(TRAILING '\r' FROM a.author_name) as author_name, p.publisher_name'
+        const filterResult = await db.query(query)
+        return filterResult
     }
 }
 

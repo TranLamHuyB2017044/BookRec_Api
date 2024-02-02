@@ -4,10 +4,8 @@ const Book = require('../Controllers/Book.controller')
 
 
 Router.route('/')
-    .get(Book.getAllBooks)
-Router.route('/:category')
-    .get(Book.getCategory)
-
+    .get(Book.getfilterBook)
+    
 
 
 module.exports = Router
