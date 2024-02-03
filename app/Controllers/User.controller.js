@@ -9,8 +9,8 @@ exports.Register = async (req, res) => {
         email: req.body.email,
         phone: req.body.phone,
         pass_word: req.body.pass_word,
-        avatar: req.file?.path,
-        avatar_id: req.file?.filename,
+        avatar: req.file?.path || 'https://res.cloudinary.com/dfnwnhng8/image/upload/v1706951994/user_ava/cxzxijeadutnj66fjfhq.jpg',
+        avatar_id: req.file?.filename || 'user_ava/cxzxijeadutnj66fjfhq',
         admin_role: req.body.admin_role,
     });
     try {

@@ -13,7 +13,7 @@ passport.use(new GoogleStrategy({
     const id = profile.id.toString()
     const slice_id = id.slice(0,10)
     const user_id = parseInt(slice_id)
-    console.log(user_id)
+    // console.log(user_id)
     const user = {
       user_id: user_id,
       fullname: profile.displayName,

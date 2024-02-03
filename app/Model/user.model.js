@@ -33,7 +33,6 @@ class User {
         console.log('isunique')
         const query = 'INSERT INTO USERS SET ?';
         const userDataWithHashedPassword = { ...newUser, pass_word: this.encryptPassword(newUser.pass_word, process.env.SECRET_AESKEY, {iv: process.env.iv}) };
-        console.log(newUser.pass_word)
         const result = await db.query(query, userDataWithHashedPassword);
         return result;
     }
