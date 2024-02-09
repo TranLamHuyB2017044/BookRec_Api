@@ -5,6 +5,8 @@ const Book = require('../Controllers/Book.controller')
 
 Router.route('/')
     .get(Book.getfilterBook)
+Router.route('/:slug')
+    .get(Book.getBookById)
     
 
 

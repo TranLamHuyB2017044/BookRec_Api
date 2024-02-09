@@ -50,3 +50,23 @@ exports.Login = async (req, res) => {
         return res.status(500).json(error.message);
     }
 }
+
+exports.LoginAdmin = async (req, res) => {
+    const {email, password} = req.body
+    try {
+        const data = await User.getOneUserAdmin(email)
+        const passwordEncrypt = data.pass_word
+        const DecryptText = crypto.AES.decrypt(passwordEncrypt, process.env.SECRET_AESKEY, {iv: process.env.iv})
+        const passwordDecrypted = DecryptText.toString(crypto.enc.Utf8)
+        if(passwordDecrypted !== password.toString()){
+            return res.status(401).json('wrong password')
+        }
+        const {pass_word, ...other} = data
+        res.status(200).json(other)
+    } catch (error) {
+        if(error.message === "Could not find your email address"){
+            return res.status(500).json("Could not find your email address");
+        }
+        return res.status(500).json(error.message);
+    }
+}

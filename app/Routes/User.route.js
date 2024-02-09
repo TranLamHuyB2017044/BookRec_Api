@@ -8,6 +8,8 @@ router.route('/register')
 
 router.route('/login')
     .post(User.Login)
+router.route('/login/admin')
+    .post(User.LoginAdmin)
 
     
 module.exports = router

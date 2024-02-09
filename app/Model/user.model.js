@@ -37,6 +37,7 @@ class User {
         return result;
     }
 
+    
     static async getOneUser(email) {
         const query = 'SELECT * FROM users WHERE email = ?'
         const result = await db.query(query,[email])
@@ -47,6 +48,19 @@ class User {
         return data
     }
 
+    static async getOneUserAdmin(email) {
+        const query = 'SELECT * FROM users WHERE email = ?'
+        const result = await db.query(query,[email])
+        const [data] = result[0].map(user => user)
+        if(data === undefined){
+            throw new Error('Could not find your email address')
+        }
+        if(data.admin_role !== 1){
+            
+            throw new Error('You are not an administrator to do this')
+        }
+        return data
+    }
 }
 
 module.exports = User
