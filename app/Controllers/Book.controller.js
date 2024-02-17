@@ -1,11 +1,12 @@
+const e = require('express');
 const Book = require('../Model/book.model')
 
-exports.getAllBooks = async (req, res) => {
+exports.getAllBooksAndNavigate = async (req, res) => {
     const currentPage = req.query.page || 1
     const itemsPerPage = 20
     const startIndex = (currentPage - 1) * itemsPerPage;
     try {
-        const books = await Book.getAllBooks(startIndex, itemsPerPage)
+        const books = await Book.getAllBooksAndNavigate(startIndex, itemsPerPage)
         const countItems = await Book.getCountALLBookQuery()
         const totalItems = countItems[0].total
         const totalPage = Math.ceil(totalItems/itemsPerPage)
@@ -17,7 +18,15 @@ exports.getAllBooks = async (req, res) => {
     }   
 }
 
-
+exports.getAllBooks = async (req, res) => {
+    try {
+        const bookList = await Book.getAllBooks()
+        res.status(200).json(bookList)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({message: error.message})
+    }
+}
 // exports.getfilterBook = async (req, res) => {
 //     const {category, rating, price, manufacturer, publisher, author} = req.query
 //     let query = ''
@@ -145,7 +154,7 @@ exports.getfilterBook = async (req, res) => {
             const totalPage = Math.ceil(totalItems / itemsPerPage);
             const pages = { totalPage: totalPage, currentPage: currentPage };
             return res.status(200).json({ data: data[0], pages: pages, query:req.query });
-        }else this.getAllBooks(req,res)
+        }else this.getAllBooksAndNavigate(req,res)
 
     } catch (error) {
         console.log(error);
@@ -171,5 +180,36 @@ exports.getBookById = async (req, res) => {
     } catch (error) {
         console.log(error)
         res.status(404).json({ error: error.message })
+    }
+}
+
+exports.checkExistBookById = async (req, res) => {
+    const {book_id} = req.body;
+    try {
+        const data = await Book.getOneBookByName(book_id)
+        if(data){
+            const book = data[0]
+            const title = book[0].title
+            const inStock = book[0].inStock
+            return res.status(200).json({message: 'book_exists', title: title, inStock: inStock})
+        }else return res.status(404).json('book_not_found, please add new book')
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({ error: error.message })
+    }
+}
+
+exports.AutocompleteSearchBook = async (req, res) => {
+    const { title } = req.query;
+    try {
+        if(title){
+            const data = await Book.searchBookByName(title)
+            return res.status(200).json(data[0])
+        }else{
+            this.getAllBooks(req, res)
+        }
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json(error.message)
     }
 }

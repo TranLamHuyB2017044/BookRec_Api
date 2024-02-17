@@ -16,8 +16,14 @@ class Book{
         this.createdAt = BookDetails.createdAt
     }
 
-    static async getAllBooks(startIndex, itemsPerPage) {
+    static async getAllBooksAndNavigate(startIndex, itemsPerPage) {
         const query = `SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, b.discount, c.thumbnail_url FROM books b left join cover_books c on b.book_id = c.book_id LIMIT ${startIndex}, ${itemsPerPage}`
+        const result = await db.query(query)
+        return result[0]
+    }
+
+    static async getAllBooks() {
+        const query = `SELECT book_id, title, original_price, discount, inStock FROM books `
         const result = await db.query(query)
         return result[0]
     }
@@ -65,6 +71,13 @@ class Book{
         const result = db.query(query)
         return result
     }
+
+    static async searchBookByName(book_title){
+        const query = `SELECT book_id, title, original_price, discount, inStock FROM books where title like '%${book_title}%'`
+        const result = await db.query(query)
+        return result
+    }
+        
 }
 
 module.exports = Book
