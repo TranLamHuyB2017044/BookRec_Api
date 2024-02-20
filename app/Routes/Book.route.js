@@ -5,13 +5,12 @@ const Book = require('../Controllers/Book.controller')
 
 Router.route('/')
     .get(Book.getfilterBook)
-Router.route('/books/check')
-    .get(Book.checkExistBookById)
+    .post(Book.createNewBook)
+    .delete(Book.deleteBook)
 Router.route('/books/all')
     .get(Book.AutocompleteSearchBook)
 Router.route('/:slug')
     .get(Book.getBookById)
-    
 
 
 module.exports = Router
