@@ -17,10 +17,18 @@ const Imgstorage = new CloudinaryStorage({
   },
 });
 
-
+const Productstorage = new CloudinaryStorage({
+  cloudinary,
+  allowedFormats: ['jpg', 'png'],
+  params: {
+    folder: 'product_img',
+  },
+});
 
 const uploadCloud = {
   avataUpload: multer({ storage: Imgstorage }),
+  imgUpload: multer({ storage: Productstorage }),
+
 };
 
 module.exports = uploadCloud;

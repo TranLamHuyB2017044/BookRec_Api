@@ -1,4 +1,6 @@
 const Book = require('../Model/book.model')
+const cloudinary = require("cloudinary").v2;
+
 
 exports.getAllBooksAndNavigate = async (req, res) => {
     const currentPage = req.query.page || 1
@@ -8,13 +10,13 @@ exports.getAllBooksAndNavigate = async (req, res) => {
         const books = await Book.getAllBooksAndNavigate(startIndex, itemsPerPage)
         const countItems = await Book.getCountALLBookQuery()
         const totalItems = countItems[0].total
-        const totalPage = Math.ceil(totalItems/itemsPerPage)
-        const data = {totalPage: totalPage, currentPage: currentPage, items: books}
+        const totalPage = Math.ceil(totalItems / itemsPerPage)
+        const data = { totalPage: totalPage, currentPage: currentPage, items: books }
         res.status(200).json(data)
     } catch (error) {
         console.log(error)
-        res.status(404).json({message: error.message})
-    }   
+        res.status(404).json({ message: error.message })
+    }
 }
 
 exports.getAllBooks = async (req, res) => {
@@ -23,7 +25,7 @@ exports.getAllBooks = async (req, res) => {
         res.status(200).json(bookList)
     } catch (error) {
         console.log(error)
-        res.status(404).json({message: error.message})
+        res.status(404).json({ message: error.message })
     }
 }
 
@@ -37,7 +39,7 @@ exports.getfilterBook = async (req, res) => {
     try {
         if (category) {
             conditions.push(`category = '${category}'`);
-            
+
         }
 
         if (rating) {
@@ -71,15 +73,15 @@ exports.getfilterBook = async (req, res) => {
 
         }
 
-        if(conditions.length > 0){
+        if (conditions.length > 0) {
             let query = `AND ${conditions.join(' AND ')}`
             const data = await Book.getFilterBook(query, startIndex, itemsPerPage);
             const countItems = await Book.getCountBookFilterQuery(query);
             const totalItems = countItems[0].total;
             const totalPage = Math.ceil(totalItems / itemsPerPage);
             const pages = { totalPage: totalPage, currentPage: currentPage };
-            return res.status(200).json({ data: data[0], pages: pages, query:req.query });
-        }else this.getAllBooksAndNavigate(req,res)
+            return res.status(200).json({ data: data[0], pages: pages, query: req.query });
+        } else this.getAllBooksAndNavigate(req, res)
 
     } catch (error) {
         console.log(error);
@@ -104,10 +106,10 @@ exports.getBookById = async (req, res) => {
 exports.AutocompleteSearchBook = async (req, res) => {
     const { title } = req.query;
     try {
-        if(title){
+        if (title) {
             const data = await Book.searchBookByName(title)
             return res.status(200).json(data[0])
-        }else{
+        } else {
             this.getAllBooks(req, res)
         }
     } catch (error) {
@@ -117,9 +119,9 @@ exports.AutocompleteSearchBook = async (req, res) => {
 }
 
 function generateRandomNumberWithDigits(digits) {
-    const min = Math.pow(10, digits - 1); 
-    const max = Math.pow(10, digits) - 1; 
-    return Math.floor(Math.random() * (max - min + 1)) + min; 
+    const min = Math.pow(10, digits - 1);
+    const max = Math.pow(10, digits) - 1;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 
@@ -130,45 +132,50 @@ exports.createNewBook = async (req, res) => {
     const cover_id = generateRandomNumberWithDigits(5)
     const publisher_id = generateRandomNumberWithDigits(5)
     const manufacturer_id = generateRandomNumberWithDigits(5)
-    const { title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, discount, publication_date } = req.body.book_info;
-    const { author_name } = req.body.author_info;
-    const { thumbnail_url, cover_url_1, cover_url_2, cover_url_3 } = req.body.cover_info;
-    const { publisher_name } = req.body.publisher_info;
-    const { manufacturer_name } = req.body.manufacturer_info;
+    const { title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, discount, publication_date, author_name, publisher_name, manufacturer_name } = req.body
+    const promises = req.files.map(file =>
+        file
+    );
+    const results = await Promise.all(promises);
+
     const book_info = {
-        book_id, 
-        title, 
-        short_description, 
-        original_price , 
-        inStock, 
-        quantity_sold, 
-        category, 
-        avg_rating, 
-        pages, 
-        discount, 
-        publication_date, 
-    }    
-    
-    const author_info = {author_id, author_name} 
-    const cover_info = {cover_id, thumbnail_url, cover_url_1, cover_url_2, cover_url_3, book_id} 
-    const publisher_info = {publisher_id, publisher_name}
-    const manufacturer_info = {manufacturer_id, manufacturer_name}
+        book_id,
+        title,
+        short_description,
+        original_price,
+        inStock,
+        quantity_sold,
+        category,
+        avg_rating,
+        pages,
+        discount,
+        publication_date,
+    }
+    const author_info = { author_id, author_name }
+    const cover_info = { cover_id, thumbnail_url: results[3].path, cover_url_1: results[2].path, cover_url_2: results[1].path, cover_url_3: results[0].path, book_id }
+    const publisher_info = { publisher_id, publisher_name }
+    const manufacturer_info = { manufacturer_id, manufacturer_name }
     try {
         const data = await Book.createNewBook(book_info, cover_info, author_info, publisher_info, manufacturer_info)
         res.status(200).json(data)
     } catch (error) {
-        console.log(error)
-        res.status(500).json(error.message)
+        if (req.files) {
+            const cover_id = { thumbnail_url: results[3].filename, cover_url_1: results[2].filename, cover_url_2: results[1].filename, cover_url_3: results[0].filename }
+            Object.values(cover_id).forEach(value => {
+                cloudinary.uploader.destroy(value)
+            })
+            res.status(500).json(error.message);
+        }
     }
 
 
 }
 
 exports.deleteBook = async (req, res) => {
-    const {book_id} = req.body    
+    const { book_id } = req.body
     try {
         const data = await Book.deleteAllAddedData(book_id)
-        res.status(200).json({status: 'success', message: data})
+        res.status(200).json({ status: 'success', message: data })
     } catch (error) {
         res.status(500).json(error.message)
     }
