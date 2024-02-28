@@ -133,11 +133,8 @@ exports.createNewBook = async (req, res) => {
     const publisher_id = generateRandomNumberWithDigits(5)
     const manufacturer_id = generateRandomNumberWithDigits(5)
     const { title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, discount, publication_date, author_name, publisher_name, manufacturer_name } = req.body
-    const promises = req.files.map(file =>
-        file
-    );
-    const results = await Promise.all(promises);
 
+    const results = req.files
     const book_info = {
         book_id,
         title,
@@ -172,7 +169,7 @@ exports.createNewBook = async (req, res) => {
 }
 
 exports.deleteBook = async (req, res) => {
-    const { book_id } = req.body
+    const  book_id  = req.params.slug;
     try {
         const data = await Book.deleteAllAddedData(book_id)
         res.status(200).json({ status: 'success', message: data })

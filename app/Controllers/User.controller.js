@@ -59,13 +59,13 @@ exports.LoginAdmin = async (req, res) => {
         const DecryptText = crypto.AES.decrypt(passwordEncrypt, process.env.SECRET_AESKEY, {iv: process.env.iv})
         const passwordDecrypted = DecryptText.toString(crypto.enc.Utf8)
         if(passwordDecrypted !== password.toString()){
-            return res.status(401).json('wrong password')
+            return res.status(401).json('Sai mật khẩu')
         }
         const {pass_word, ...other} = data
         res.status(200).json(other)
     } catch (error) {
         if(error.message === "Could not find your email address"){
-            return res.status(500).json("Could not find your email address");
+            return res.status(500).json("Không tìm thấy địa chỉ email của bạn");
         }
         return res.status(500).json(error.message);
     }

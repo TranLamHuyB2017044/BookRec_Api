@@ -12,11 +12,6 @@ const db = mysql.createPool({
     queueLimit: 0 
 }).promise();
 
-// db.query('SELECT b.title, b.quantity_sold, b.avg_rating, b.original_price, b.discount, c.thumbnail_url FROM books b join cover_books c on b.book_id = c.book_id',  (error, results, fields)=> {
-//     if (error) throw error;
-//     console.log(results);
-// });
-  
 
 // Khi kill terminal, đóng pool
 process.on('SIGINT', function () {
