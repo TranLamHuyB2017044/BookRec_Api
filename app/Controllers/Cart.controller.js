@@ -76,3 +76,13 @@ exports.updateItemsQuantity = async (req, res) => {
         res.status(404).json({message: error.message})
     }
 }
+
+exports.deleteItems = async (req, res) => {
+    const item_id = req.body.item_id
+    try {
+        const response = await CartItems.deleteCartItem(item_id)
+        res.status(200).json(response)
+    } catch (error) {
+        res.status(404).json({message: error.message})
+    }
+}

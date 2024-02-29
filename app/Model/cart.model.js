@@ -64,6 +64,13 @@ class CartItems extends Cart{
         await db.query(query, [quantity, item_id]); 
         return updatedItem
     }
+
+
+    static async deleteCartItem(item_id){
+        const query = `delete from cartitem where item_id = ?`;
+        await db.query(query, [item_id]); 
+        return `Đã xóa items ${item_id}`
+    }
 }
 
 
