@@ -1,4 +1,3 @@
-const mysql = require('mysql2');
 const express = require("express");
 const app = express();
 const  bodyParser = require('body-parser')
@@ -25,8 +24,8 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use(cors({
-  methods: 'GET, POST, PUT, DELETE',
-  credentials:true
+  origin: 'http://localhost:3000', 
+  credentials: true
 }));
 app.use(express.json());
 app.use(bodyParser.json()) // for parsing application/json

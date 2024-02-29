@@ -4,9 +4,11 @@ const Cart = require('../Controllers/Cart.controller')
 
 
 Router.route('/')
-    .post(Cart.addToCart)
+    .post(Cart.CreateCartUser)
     .put(Cart.updateItemsQuantity)
     .delete(Cart.deleteItems)
+Router.route('/add')
+    .post(Cart.addToCart)
 Router.route('/:user_id')
     .get(Cart.getUserCart)
 

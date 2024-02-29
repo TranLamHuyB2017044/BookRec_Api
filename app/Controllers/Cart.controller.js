@@ -5,18 +5,19 @@ function generateRandomNumberWithDigits(digits) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-exports.CreateCartUser = async (user_id) => {
+exports.CreateCartUser = async (req,res) => {
+    const user_id = req.body.user_id
     const cart_id = generateRandomNumberWithDigits(5)  
     try {
         const userCart = await Cart.getUserCart(user_id)
         if(userCart.length > 0){
-            return {message: 'User đã có giỏ hàng rồi'}
+            return res.status(301).json({message: 'User đã có giỏ hàng rồi'})
         }else{
             const data = await Cart.createUserCart(cart_id, user_id)
-            return data
+            return res.status(201).json(data)
         }
     } catch (error) {
-        return {message: error.message}
+        res.status(401).json( {message: error.message})
     }
 }
 
@@ -27,15 +28,9 @@ exports.addToCart = async (req, res) =>{
         quantity,
     }
     try {
-        let CartID = 0
         const userCart = await Cart.getUserCart(user_id)
-        // kiểm tra user đã có cart chưa
-        if (userCart === undefined){
-            const cartBefore = this.CreateCartUser(user_id)
-            CartID = cartBefore.cart_id
-        }else{
-            CartID = userCart[0].cart_id
-        }
+        const CartID = userCart[0].cart_id
+
         // kiểm tra sách thêm vào đã tồn tại trong cartItem chưa
         const existingItems = await CartItems.checkExistingBook(CartID, book_id)
         if(existingItems !== null){

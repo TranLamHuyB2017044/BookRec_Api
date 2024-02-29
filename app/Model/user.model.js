@@ -27,10 +27,8 @@ class User {
     static async createUser(newUser) {
         const isUnique = await this.isEmailUnique(newUser.email);
         if (isUnique[0].length > 0) {
-            console.log('email is not unique')
-            throw new Error('Email already exists.');
+            throw new Error('Email đã được sử dụng.');
         }
-        console.log('isunique')
         const query = 'INSERT INTO USERS SET ?';
         const userDataWithHashedPassword = { ...newUser, pass_word: this.encryptPassword(newUser.pass_word, process.env.SECRET_AESKEY, {iv: process.env.iv}) };
         const result = await db.query(query, userDataWithHashedPassword);
