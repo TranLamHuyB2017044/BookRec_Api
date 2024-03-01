@@ -4,16 +4,16 @@ function generateRandomNumberWithDigits(digits) {
     const max = Math.pow(10, digits) - 1;
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 exports.CreateCartUser = async (req,res) => {
     const user_id = req.body.user_id
     const cart_id = generateRandomNumberWithDigits(5)  
     try {
-        const userCart = await Cart.getUserCart(user_id)
-        if(userCart.length > 0){
-            return res.status(301).json({message: 'User đã có giỏ hàng rồi'})
+        const userCart = new Cart(cart_id, user_id)
+        const existCart = await userCart.getUserCart()
+        if(existCart.length > 0){
+            return res.status(202).json({message: 'User đã có giỏ hàng rồi'})
         }else{
-            const data = await Cart.createUserCart(cart_id, user_id)
+            const data =await userCart.createUserCart()
             return res.status(201).json(data)
         }
     } catch (error) {

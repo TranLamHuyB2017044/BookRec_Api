@@ -7,18 +7,19 @@ class Cart {
     }
 
 
-    static async createUserCart(cart_id, user_id){
+    async createUserCart(){
         const query = `insert into cart (cart_id, user_id) values (?, ?)`
-        await db.query(query, [cart_id, user_id])
+        await db.query(query, [this.cart_id, this.user_id])
         return {
             cart_id: cart_id,
             user_id: user_id
         }
     }
 
-    static async getUserCart(userID){
-        const query = `select cart_id from cart where user_id = ${userID}`
-        const data = await db.query(query, [userID])
+    async getUserCart(){
+        const query = `select cart_id from cart where user_id = ${this.user_id}`
+        console.log(query)
+        const data = await db.query(query, [this.user_id])
         return data[0]
     }
 }
