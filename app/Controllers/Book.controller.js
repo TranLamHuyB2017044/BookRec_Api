@@ -101,7 +101,15 @@ exports.getBookById = async (req, res) => {
     }
 }
 
-
+exports.getImageBook = async (req, res) => {
+    const book_id = req.params.book_id
+    try {
+        const data = await Book.getImgBook(book_id)
+        res.status(200).json(data[0])
+    } catch (error) {
+        res.status(404).json({ error: error.message })
+    }
+}
 
 exports.AutocompleteSearchBook = async (req, res) => {
     const { title } = req.query;
@@ -175,5 +183,30 @@ exports.deleteBook = async (req, res) => {
         res.status(200).json({ status: 'success', message: data })
     } catch (error) {
         res.status(500).json(error.message)
+    }
+}
+
+exports.updateBookAuthorInfo = async (req, res) => {
+    const book_id = req.params.slug
+    const author_name = req.body.author_name
+    try {
+        let author_id = 0
+        const existAuthor = await Book.getAuthorId(author_name)
+        console.log(existAuthor)
+        if(existAuthor.length > 0){
+            author_id = existAuthor[0].author_id
+            const authorUpdate = await Book.updateAuthorInfo(author_id, book_id)
+            return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
+        }else{
+            const randomAuthorId = generateRandomNumberWithDigits(5)
+            const newAuthor = await Book.AddAuthorInfo(randomAuthorId, author_name)
+            console.log(newAuthor.author_id)
+            author_id = newAuthor.author_id
+            const upDateAuthor = await Book.updateAuthorInfo(author_id, book_id)
+            return res.status(200).json({status: 'success', authorUpdate: upDateAuthor})
+
+        }
+    } catch (error) {
+        res.status(404).json({message: error.message})
     }
 }

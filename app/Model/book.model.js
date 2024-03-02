@@ -78,6 +78,11 @@ class Book{
         return result
     }
      
+    static async getImgBook(book_id){
+        const query = `SELECT * from cover_books where book_id = '${book_id}'`
+        const result = await db.query(query)
+        return result[0]
+    }
     
     static async createNewBook(book_info, cover_info, author_info, publisher_info, manufacturer_info) {
         try {
@@ -157,6 +162,42 @@ class Book{
             throw error;
         }
     }
+
+    async updateBook(updateData){
+        const updateBookQuery = `update books set ? where book_id = ? `
+        await db.query(updateBookQuery, [updateData, this.book_id])
+        return {
+            book_id: book_id,
+            newData: updateData
+        }
+    }
+
+
+    static async getAuthorId (author_name){
+        const query = `select author_id from authors where author_name = ?`
+        const data = await db.query(query, author_name)
+        return data[0]
+    }
+
+    static async AddAuthorInfo(author_id, author_name){
+        const query = `INSERT INTO authors  (author_id, author_name) values (?, ?) `
+        await db.query(query, [author_id, author_name])
+        return {
+            author_id: author_id,
+            author_name: author_name
+        }
+    }
+    static async updateAuthorInfo(author_id, book_id){
+        const bookQuery = 'inner join books b on ba.book_id = b.book_id'
+        const updateAuthorQuery = `update book_authors ba  ${bookQuery} set ba.author_id = ? where b.book_id = ${book_id}`
+        await db.query(updateAuthorQuery, author_id)
+        return {
+            book_id: book_id,
+            author_id: author_id
+        }
+    }
+
+    
 
 }
 
