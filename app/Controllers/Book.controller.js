@@ -187,26 +187,28 @@ exports.deleteBook = async (req, res) => {
 }
 
 exports.updateBookAuthorInfo = async (req, res) => {
-    const book_id = req.params.slug
+    const book_id = req.params.book_id
     const author_name = req.body.author_name
     try {
         let author_id = 0
         const existAuthor = await Book.getAuthorId(author_name)
-        console.log(existAuthor)
         if(existAuthor.length > 0){
             author_id = existAuthor[0].author_id
-            const authorUpdate = await Book.updateAuthorInfo(author_id, book_id)
+            console.log(author_id)
+            const authorUpdate = await Book.updateAuthorInfo(book_id, author_id)
             return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
         }else{
+            console.log('Them tác giả mới')
             const randomAuthorId = generateRandomNumberWithDigits(5)
             const newAuthor = await Book.AddAuthorInfo(randomAuthorId, author_name)
-            console.log(newAuthor.author_id)
             author_id = newAuthor.author_id
-            const upDateAuthor = await Book.updateAuthorInfo(author_id, book_id)
+            const upDateAuthor = await Book.updateAuthorInfo(book_id, author_id)
             return res.status(200).json({status: 'success', authorUpdate: upDateAuthor})
 
         }
     } catch (error) {
         res.status(404).json({message: error.message})
+        console.log(error)
     }
 }
+

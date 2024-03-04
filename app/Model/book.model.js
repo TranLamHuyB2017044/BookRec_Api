@@ -174,8 +174,8 @@ class Book{
 
 
     static async getAuthorId (author_name){
-        const query = `select author_id from authors where author_name = ?`
-        const data = await db.query(query, author_name)
+        const query = `select author_id from authors where author_name = '${author_name}'`
+        const data = await db.query(query)
         return data[0]
     }
 
@@ -187,10 +187,9 @@ class Book{
             author_name: author_name
         }
     }
-    static async updateAuthorInfo(author_id, book_id){
-        const bookQuery = 'inner join books b on ba.book_id = b.book_id'
-        const updateAuthorQuery = `update book_authors ba  ${bookQuery} set ba.author_id = ? where b.book_id = ${book_id}`
-        await db.query(updateAuthorQuery, author_id)
+    static async updateAuthorInfo(book_id, author_id){
+        const updateAuthorQuery = `insert into book_authors (book_id, author_id) values (?, ?)`
+        await db.query(updateAuthorQuery, [book_id, author_id])
         return {
             book_id: book_id,
             author_id: author_id
