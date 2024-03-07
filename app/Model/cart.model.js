@@ -34,7 +34,7 @@ class CartItems extends Cart{
     static async getCartItems(cart_id){
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
         const book_query = ' left Join books b on b.book_id = ct.book_id'
-        const itemsQuery = `SELECT ct.item_id, c.thumbnail_url, b.title, ct.quantity, b.original_price, b.discount FROM cartitem ct ${book_query} ${cover_book_query} where ct.cart_id = ?`;
+        const itemsQuery = `SELECT b.book_id, ct.item_id, c.thumbnail_url, b.title, ct.quantity, b.original_price, b.discount FROM cartitem ct ${book_query} ${cover_book_query} where ct.cart_id = ?`;
         const items = await db.query(itemsQuery, [cart_id]);
         return items[0];
     }

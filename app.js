@@ -7,6 +7,7 @@ const OauthRouter = require("./app/Routes/Oauth.route");
 const UserRouter = require("./app/Routes/User.route");
 const BookRouter = require("./app/Routes/Book.route");
 const CartRouter = require("./app/Routes/Cart.route");
+const OrderRouter = require("./app/Routes/Order.route");
 const passport = require('passport');
 const cookieSession = require('cookie-session');
 require("dotenv").config();
@@ -24,7 +25,8 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use(cors({
-  credentials: true
+  credentials: true,
+  origin: 'http://localhost:3000'
 }));
 app.use(express.json());
 app.use(bodyParser.json()) // for parsing application/json
@@ -35,6 +37,7 @@ app.use('/', OauthRouter)
 app.use('/api/user', UserRouter)
 app.use('/api/collection', BookRouter)
 app.use('/api/cart', CartRouter)
+app.use('/api/order', OrderRouter)
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to review application !" });

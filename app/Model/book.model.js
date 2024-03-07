@@ -197,7 +197,9 @@ class Book{
     }
 
     
-
+    static async updateImageBook(){
+        
+    }
 }
 
 module.exports = Book
