@@ -11,6 +11,7 @@ exports.createOrder = async (req,res) => {
     const OrderInfo = new Order({
         order_id: generateRandomNumberWithDigits(5),
         user_id: req.body.user_id,
+        customer_name: req.body.customer_name,
         address: req.body.address,
         phone: req.body.phone,
         shipping_method: req.body.shipping_method,
@@ -30,9 +31,19 @@ exports.createOrder = async (req,res) => {
 }
 
 exports.getAllUserOrder = async (req, res) => {
-    const user_id = req.body.user_id;
+    const user_id = req.params.user_id;
     try {
-        const data = await OrderItem.getAllUserOrders(user_id)
+        const AllOrder = await Order.getAllUserOrders(user_id)
+        const orderIds = AllOrder.map(order => order.order_id)
+        const orderItems = await OrderItem.getAllOrderItems(orderIds)
+        const data = AllOrder.map((order, id) => {
+            return {
+                ...order,
+                items: orderItems[id]
+            }
+
+        })
+
         res.status(200).json(data)
     } catch (error) {
         res.status(401).json({ error: error.message })

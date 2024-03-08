@@ -5,6 +5,7 @@ class Order{
     constructor(order){
         this.order_id = order.order_id,
         this.user_id = order.user_id,
+        this.customer_name = order.customer_name
         this.address = order.address,
         this.phone = order.phone || '',
         this.shipping_method = order.shipping_method,
@@ -16,6 +17,7 @@ class Order{
         const orderInfo = {
             order_id: this.order_id,
             user_id: this.user_id,
+            customer_name: this.customer_name,
             address: this.address,
             phone: this.phone,
             shipping_method: this.shipping_method,
@@ -26,6 +28,11 @@ class Order{
         return data
     }
 
+    static async getAllUserOrders(user_id){
+        const query = `select * from orders where user_id = ? `
+        const data = await db.query(query, user_id)
+        return data[0]
+    }
 
 
 }
@@ -49,14 +56,17 @@ class OrderItem extends Order {
         })
     }
 
-    static async getAllUserOrders(user_id){
-        const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
-        const book_query = ' left Join books b on b.book_id = ot.book_id'
-        const orderItemsQuery = `left join orderitems ot on od.order_id = ot.order_id`
-        const selectQuery = `c.thumbnail_url, b.title, b.original_price, b.discount, ot.quantity, od.order_date, od.payment_status, od.total_price, od.address`
-        const orderQuery = `select ${selectQuery}  from orders od ${orderItemsQuery} ${book_query} ${cover_book_query} where user_id = ${user_id}`
-        const data = await db.query(orderQuery)
-        return data
+
+    static async getAllOrderItems(orderIds){
+        const promises = orderIds.map(orderId => {
+            const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
+            const book_query = ' left Join books b on b.book_id = ot.book_id'
+            const selectQuery = `c.thumbnail_url, b.title, b.original_price, b.discount, ot.quantity `
+            const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} where order_id = ${orderId} `
+            return db.query(Query)
+        })
+        const results = await Promise.all(promises);
+        return results.map(result => result[0]);
     }
 }
 
