@@ -9,13 +9,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET
 });
 
-const Imgstorage = new CloudinaryStorage({
-  cloudinary,
-  allowedFormats: ['jpg', 'png'],
-  params: {
-    folder: 'user_ava',
-  },
-});
 
 const Productstorage = new CloudinaryStorage({
   cloudinary,
@@ -26,7 +19,6 @@ const Productstorage = new CloudinaryStorage({
 });
 
 const uploadCloud = {
-  avataUpload: multer({ storage: Imgstorage }),
   imgUpload: multer({ storage: Productstorage }),
 
 };

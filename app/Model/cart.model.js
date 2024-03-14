@@ -9,7 +9,7 @@ class Cart {
 
     static async createUserCart(cart_id, user_id){
         const query = `insert into cart (cart_id, user_id) values (?, ?)`
-        await db.query(query, [cart_id, cart_id])
+        await db.query(query, [cart_id, user_id])
         return {
             cart_id: cart_id,
             user_id: user_id

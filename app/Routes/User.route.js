@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router()
 const User = require('../Controllers/User.controller')
-const upLoad = require('../config/cloudinary')
 
 router.route('/register')
-    .post(upLoad.avataUpload.single('avatar'), User.Register)
-
+    .post(User.Register)
+router.route('/verifyEmail')
+    .put(User.UpdateVerify)
 router.route('/login')
     .post(User.Login)
 router.route('/login/admin')

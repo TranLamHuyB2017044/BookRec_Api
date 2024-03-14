@@ -13,20 +13,19 @@ passport.use(new GoogleStrategy({
     const id = profile.id.toString()
     const slice_id = id.slice(0,10)
     const user_id = parseInt(slice_id)
-    // console.log(user_id)
     const user = {
       user_id: user_id,
       fullname: profile.displayName,
       email: profile.email,
-      avatar: profile.picture
+      verify: 1,
     }
-    const insertQuery = 'INSERT INTO users (user_id, fullname, email, avatar) VALUES (?, ?, ?, ?)';
+    const insertQuery = 'INSERT INTO users (user_id, fullname, email, verify) VALUES (?, ?, ?, ?) ';
     const selectQuery = 'SELECT * FROM users WHERE user_id = ?';
 
     try {
-      const [existingUser] = await db.query(selectQuery, [user.user_id, user.fullname, user.email, user.avatar])
+      const [existingUser] = await db.query(selectQuery, [user.user_id])
       if(existingUser.length == 0 ){
-        await db.query(insertQuery, [user.user_id, user.fullname, user.email, user.avatar])
+        await db.query(insertQuery, [user.user_id, user.fullname, user.email, user.verify])
       }
       return done(null, user)
     } catch (error) {

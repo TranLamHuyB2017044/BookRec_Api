@@ -1,15 +1,15 @@
 const db = require('../config/db');
 const CryptoJS = require('crypto-js');
 require("dotenv").config();
+const nodemailer = require('nodemailer');
 
 class User {
     constructor(UserDetail) {
         this.fullname = UserDetail.fullname;
         this.email = UserDetail.email;
+        this.verify = UserDetail.verify === 'true' ? 1 : 0;
         this.phone = UserDetail.phone;
         this.pass_word = UserDetail.pass_word;
-        this.avatar = UserDetail.avatar;
-        this.avatar_id = UserDetail.avatar_id;
         this.admin_role = UserDetail.admin_role === 'true' ? 1 : 0
     }
 
@@ -30,17 +30,17 @@ class User {
             throw new Error('Email đã được sử dụng.');
         }
         const query = 'INSERT INTO USERS SET ?';
-        const userDataWithHashedPassword = { ...newUser, pass_word: this.encryptPassword(newUser.pass_word, process.env.SECRET_AESKEY, {iv: process.env.iv}) };
+        const userDataWithHashedPassword = { ...newUser, pass_word: this.encryptPassword(newUser.pass_word, process.env.SECRET_AESKEY, { iv: process.env.iv }) };
         const result = await db.query(query, userDataWithHashedPassword);
         return result;
     }
 
-    
+
     static async getOneUser(email) {
         const query = 'SELECT * FROM users WHERE email = ?'
-        const result = await db.query(query,[email])
+        const result = await db.query(query, [email])
         const [data] = result[0].map(user => user)
-        if(data === undefined){
+        if (data === undefined) {
             throw new Error('Could not find your email address')
         }
         return data
@@ -48,16 +48,44 @@ class User {
 
     static async getOneUserAdmin(email) {
         const query = 'SELECT * FROM users WHERE email = ?'
-        const result = await db.query(query,[email])
+        const result = await db.query(query, [email])
         const [data] = result[0].map(user => user)
-        if(data === undefined){
+        if (data === undefined) {
             throw new Error('Could not find your email address')
         }
-        if(data.admin_role !== 1){
-            
+        if (data.admin_role !== 1) {
+
             throw new Error('You are not an administrator to do this')
         }
         return data
+    }
+
+    static async VerifyEmail(user, verifyNumber) {
+        // const verifyLink = 'http://localhost:3000/login'
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // Use `true` for port 465, `false` for all other ports
+            auth: {
+                user: "tlhuy02@gmail.com",
+                pass: process.env.MailPass,
+            },
+        })
+        console.log("to", user.email)
+        const mailOptions = {
+            from: '"BookRec" <tlhuy02@gmail.com>',
+            to: user.email,
+            subject: 'Verify your email',
+            html: `<p>Hello 👋 ${user.fullname}, Your verify number ${verifyNumber}</p>`
+        }
+        transporter.sendMail(mailOptions)
+    }
+
+    static async updateVerify(email){
+        const query = `UPDATE users SET verify = 1 WHERE email = '${email}' `
+        await db.query(query)
+        return {message: 'success'}
     }
 }
 
