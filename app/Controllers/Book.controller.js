@@ -192,19 +192,37 @@ exports.updateBookAuthorInfo = async (req, res) => {
     try {
         let author_id = 0
         const existAuthor = await Book.getAuthorId(author_name)
-        if(existAuthor.length > 0){
-            author_id = existAuthor[0].author_id
-            console.log(author_id)
-            const authorUpdate = await Book.updateAuthorInfo(book_id, author_id)
-            return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
-        }else{
-            console.log('Them tác giả mới')
-            const randomAuthorId = generateRandomNumberWithDigits(5)
-            const newAuthor = await Book.AddAuthorInfo(randomAuthorId, author_name)
-            author_id = newAuthor.author_id
-            const upDateAuthor = await Book.updateAuthorInfo(book_id, author_id)
-            return res.status(200).json({status: 'success', authorUpdate: upDateAuthor})
-
+        const existBookAuthor = await Book.getBookAuthorInfo(book_id)
+        if(existBookAuthor.length > 0) {
+            // TH Đã tồn tại id_tácgiả và id_sách trong bảng book_authors
+            if(existAuthor.length > 0){
+                // TH đã có tác giả trong database
+                author_id = existAuthor[0].author_id
+                const authorUpdate = await Book.updateAuthorBookInfo(author_id, book_id)
+                return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
+            }else{
+                // TH chưa có tác giả trong database
+                const randomAuthorId = generateRandomNumberWithDigits(5)
+                const newAuthor = await Book.AddAuthorInfo(randomAuthorId, author_name)
+                author_id = newAuthor.author_id
+                const authorUpdate = await Book.updateAuthorBookInfo(author_id, book_id)
+                return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
+            }
+        }else {
+            // TH chưa tồn tại id_tácgiả và id_sách trong bảng book_authors
+            if(existAuthor.length > 0 ){
+                // TH đã có tác giả trong database
+                author_id = existAuthor[0].author_id
+                const authorUpdate = await Book.AddBookAuthors(book_id, author_id)
+                return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
+            }else{
+                // TH đã chưa tác giả trong database
+                const randomAuthorId = generateRandomNumberWithDigits(5)
+                const newAuthor = await Book.AddAuthorInfo(randomAuthorId, author_name)
+                author_id = newAuthor.author_id
+                const upDateAuthor = await Book.AddBookAuthors(book_id, author_id)
+                return res.status(200).json({status: 'success', authorUpdate: upDateAuthor})
+            }
         }
     } catch (error) {
         res.status(404).json({message: error.message})
@@ -212,3 +230,47 @@ exports.updateBookAuthorInfo = async (req, res) => {
     }
 }
 
+exports.updateBookCoverInfo = async (req, res) => {
+    const book_id = req.params.book_id
+    try {
+        const existImage = await Book.getImgBook(book_id)
+        let cover_id = 0
+        const cover_books = req.files
+        const cover_info = {thumbnail_url: cover_books[3].path, cover_url_1: cover_books[2].path, cover_url_2: cover_books[1].path, cover_url_3: cover_books[0].path }
+        if(existImage.length > 0) {
+            cover_id = existImage[0].cover_id
+            const data = await Book.updateImageBook(book_id, cover_info)
+            return res.status(200).json({message: 'success', data: data})
+        }else{
+            cover_id = generateRandomNumberWithDigits(5)
+            const data = await Book.addImageBook(cover_id, cover_info, book_id)
+            return res.status(200).json({message: 'success', data: data})
+        }
+    } catch (error) {
+        return res.status(404).json({message: error.message})
+    }
+}
+
+
+
+exports.updateBookInfo = async (req, res) => {
+    const book_id = req.params.book_id
+    try {
+        const book_exists = await Book.getBookById(book_id)
+        const book_info = {
+            title: req.body.title || book_exists[0].title,
+            short_description: req.body.short_description || book_exists[0].short_description,
+            original_price: req.body.original_price || book_exists[0].original_price,
+            inStock: req.body.inStock || book_exists[0].inStock,
+            quantity_sold: req.body.quantity_sold || book_exists[0].quantity_sold,
+            category: req.body.category || book_exists[0].category,
+            avg_rating: req.body.avg_rating || book_exists[0].avg_rating,
+            pages: req.body.pages || book_exists[0].pages,
+            discount: req.body.discount || book_exists[0].discount,
+        }
+        const newBook =  await Book.updateBook(book_info, book_id)
+        return res.status(200).json({message: 'success', data: newBook})
+    } catch (error) {
+        return res.status(404).json({message: error.message})
+    }
+}

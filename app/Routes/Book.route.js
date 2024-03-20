@@ -12,10 +12,13 @@ Router.route('/books/all')
 Router.route('/:slug')
     .get(Book.getBookById)
     .delete(Book.deleteBook)
+Router.route('/book/:book_id')
+    .put(Book.updateBookInfo)
 Router.route('/author/:book_id')
     .put(Book.updateBookAuthorInfo)
 Router.route('/images/:book_id')
     .get(Book.getImageBook)
+    .put(upLoad.imgUpload.array('coverBooks', 4), Book.updateBookCoverInfo)
 
 
 module.exports = Router

@@ -72,7 +72,6 @@ class User {
                 pass: process.env.MailPass,
             },
         })
-        console.log("to", user.email)
         const mailOptions = {
             from: '"BookRec" <tlhuy02@gmail.com>',
             to: user.email,

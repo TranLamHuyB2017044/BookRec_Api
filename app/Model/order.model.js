@@ -1,6 +1,6 @@
 
 const db = require('../config/db')
-
+const nodemailer = require('nodemailer');
 class Order{
     constructor(order){
         this.order_id = order.order_id,
@@ -34,7 +34,40 @@ class Order{
         return data[0]
     }
 
+    static async sendVerifyEmail(info){
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // Use `true` for port 465, `false` for all other ports
+            auth: {
+                user: "tlhuy02@gmail.com",
+                pass: process.env.MailPass,
+            },
+        })
+        const mailOptions = {
+            from: '"BookRec" <tlhuy02@gmail.com>',
+            to: info.email,
+            subject: 'Xác nhận đơn hàng !!',
+            html: `<p> Hello 👋 ${info.customer_name}, Cảm ơn bạn đã đặt hàng tại công ty chúng tôi
+                <div>Bạn có thể theo dõi đơn hàng của bạn trên website <a href='http://localhost:3000/yourOrders'>Tại đây</a> </div>
+                <div>
+                    <h3>Thông tin đơn hàng:</h3>
+                    <p>Tên khách hàng: ${info.customer_name}</p>
+                    <p>Ngày đặt: ${info.order_date}</p>
+                    <p>Tổng cộng: ${(info.total)} vnđ</p>
+                </div>
+                <strong>Địa chỉ giao hàng: ${info.address}</strong>
+                <p>Chúng tôi hi vọng bạn có trãi nghiệm mua sắm tuyệt vời tại website và bạn sẽ quay lại trong những lần tiếp theo.</p>
 
+                <p>Mọi thắc mắc xin đừng ngần ngại liên hệ qua sđt: 0939419860 hoặc phản hồi email này.</p>
+
+                <strong>Tiếp tục mua sắm tại <a href='http://localhost:3000/collections'>BookRec</a></strong>
+            `
+        }
+        transporter.sendMail(mailOptions)
+    }
+    
 }
 
 

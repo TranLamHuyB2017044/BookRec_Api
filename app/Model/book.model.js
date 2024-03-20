@@ -72,17 +72,18 @@ class Book{
         return result
     }
 
+    static async getBookById(book_id) {
+        const query = `SELECT * FROM books where book_id = ${book_id}`
+        const result = await db.query(query)
+        return result[0]
+    }
+
     static async searchBookByName(book_title){
         const query = `SELECT book_id, title, original_price, discount, inStock FROM books where title like '%${book_title}%'`
         const result = await db.query(query)
         return result
     }
      
-    static async getImgBook(book_id){
-        const query = `SELECT * from cover_books where book_id = '${book_id}'`
-        const result = await db.query(query)
-        return result[0]
-    }
     
     static async createNewBook(book_info, cover_info, author_info, publisher_info, manufacturer_info) {
         try {
@@ -163,9 +164,10 @@ class Book{
         }
     }
 
-    async updateBook(updateData){
-        const updateBookQuery = `update books set ? where book_id = ? `
-        await db.query(updateBookQuery, [updateData, this.book_id])
+    static async updateBook(updateData, book_id){
+        const updateQuery = `title = '${updateData.title}', short_description = '${updateData.short_description}', original_price = ${updateData.original_price}, inStock = ${updateData.inStock}, quantity_sold = ${updateData.quantity_sold}, category = '${updateData.category}', avg_rating = ${updateData.avg_rating}, pages = ${updateData.pages}, discount = ${updateData.discount}`
+        const updateBookQuery = `update books set ${updateQuery}  where book_id = ${book_id}`
+        await db.query(updateBookQuery)
         return {
             book_id: book_id,
             newData: updateData
@@ -178,6 +180,17 @@ class Book{
         const data = await db.query(query)
         return data[0]
     }
+    
+    static async getBookAuthorInfo(book_id){
+        const query = `select * from book_authors where book_id = '${book_id}'`
+        const data = await db.query(query)
+        return data[0]
+    }
+    static async updateAuthorBookInfo (author_id, book_id){
+        const query = `update book_authors set author_id = ${author_id} where book_id = ${book_id}`
+        const data = await db.query(query)
+        return data[0]
+    }
 
     static async AddAuthorInfo(author_id, author_name){
         const query = `INSERT INTO authors  (author_id, author_name) values (?, ?) `
@@ -187,18 +200,31 @@ class Book{
             author_name: author_name
         }
     }
-    static async updateAuthorInfo(book_id, author_id){
-        const updateAuthorQuery = `insert into book_authors (book_id, author_id) values (?, ?)`
-        await db.query(updateAuthorQuery, [book_id, author_id])
-        return {
-            book_id: book_id,
-            author_id: author_id
-        }
+
+    static async AddBookAuthors(book_id, author_id){
+        const query = `INSERT INTO book_authors  (book_id, author_id) values (?, ?) `
+        const data = await db.query(query, [book_id, author_id]);
+        return data[0]
+
     }
 
+    static async getImgBook(book_id){
+        const query = `SELECT * from cover_books where book_id = '${book_id}'`
+        const result = await db.query(query)
+        return result[0]
+    }
     
-    static async updateImageBook(){
-        
+    
+    static async updateImageBook(book_id,  book_cover){
+        const updateImageBookQuery = `UPDATE cover_books SET thumbnail_url = ?, cover_url_1 = ?, cover_url_2 = ?, cover_url_3 = ? WHERE book_id = ${book_id}; `
+        const data = await db.query(updateImageBookQuery, [book_cover.thumbnail_url, book_cover.cover_url_1, book_cover.cover_url_2, book_cover.cover_url_3])
+        return data
+    }
+
+    static async addImageBook(cover_id, book_cover, book_id){
+        const query = `INSERT INTO cover_books (cover_id, thumbnail_url, cover_url_1, cover_url_2, cover_url_3, book_id) values (?, ?, ?, ?, ?, ?)`
+        const data = await db.query(query, [cover_id, book_cover.thumbnail_url, book_cover.cover_url_1, book_cover.cover_url_2, book_cover.cover_url_3, book_id])
+        return data
     }
 }
 

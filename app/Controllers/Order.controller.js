@@ -1,5 +1,4 @@
 const {Order, OrderItem} = require('../Model/order.model')
-
 function generateRandomNumberWithDigits(digits) {
     const min = Math.pow(10, digits - 1);
     const max = Math.pow(10, digits) - 1;
@@ -18,12 +17,26 @@ exports.createOrder = async (req,res) => {
         payment_method: req.body.payment_method,
         total_price: req.body.total_price
     })
-    
+    const now = new Date();
+    const currentDate = now.getDate(); 
+    const currentMonth = now.getMonth() + 1; 
+    const currentYear = now.getFullYear();
+    const currentHour = now.getHours(); 
+    const currentMinute = now.getMinutes(); 
+    const currentSecond = now.getSeconds(); 
+    const email_info = {
+        email: req.body.email,
+        customer_name: OrderInfo.customer_name,
+        order_date: `${currentDate} - ${currentMonth} - ${currentYear} / ${currentHour}h:${currentMinute}m:${currentSecond}s`,
+        total: OrderInfo.total_price.toLocaleString(),
+        address: OrderInfo.address
+    }
     try {
         await OrderInfo.createUserOrder()
         const items = req.body.items
         const orderItemsValues = items.map(item => [generateRandomNumberWithDigits(5), OrderInfo.order_id, item.book_id, item.quantity]);
         await OrderItem.addOrderItems(orderItemsValues)
+        await OrderItem.sendVerifyEmail(email_info)
         res.status(200).json({status: 'success', message: 'Created order successfully'}) 
     } catch (error) {
         res.status(404).json({message: error.message});

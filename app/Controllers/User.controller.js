@@ -72,7 +72,7 @@ exports.LoginAdmin = async (req, res) => {
         const passwordEncrypt = data.pass_word
         const DecryptText = crypto.AES.decrypt(passwordEncrypt, process.env.SECRET_AESKEY, { iv: process.env.iv })
         const passwordDecrypted = DecryptText.toString(crypto.enc.Utf8)
-        if (passwordDecrypted !== password.toString()) {
+        if (passwordDecrypted !== password) {
             return res.status(401).json('Sai mật khẩu')
         }
         const { pass_word, ...other } = data
