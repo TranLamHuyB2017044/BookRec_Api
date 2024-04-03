@@ -8,6 +8,7 @@ const UserRouter = require("./app/Routes/User.route");
 const BookRouter = require("./app/Routes/Book.route");
 const CartRouter = require("./app/Routes/Cart.route");
 const OrderRouter = require("./app/Routes/Order.route");
+const RatingRouter = require("./app/Routes/Rating.route");
 const passport = require('passport');
 const cookieSession = require('cookie-session');
 require("dotenv").config();
@@ -36,6 +37,7 @@ app.use('/api/user', UserRouter)
 app.use('/api/collection', BookRouter)
 app.use('/api/cart', CartRouter)
 app.use('/api/order', OrderRouter)
+app.use('/api/rating', RatingRouter)
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to review application !" });

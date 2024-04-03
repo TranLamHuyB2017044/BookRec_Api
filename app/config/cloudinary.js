@@ -17,10 +17,32 @@ const Productstorage = new CloudinaryStorage({
     folder: 'product_img',
   },
 });
+const ProductVideo = new CloudinaryStorage({
+  cloudinary,
+  allowedFormats: ['mp3', 'mp4', 'avi', 'mov'],
+  params: {
+    folder: 'video_product',
+    resource_type: 'video'
+  },
+});
+
+const anyUpload = new CloudinaryStorage({
+  cloudinary,
+  allowedFormats: ['mp3', 'mp4', 'avi', 'mov', 'jpg', 'png', 'jpeg'],
+  params: {
+    folder: 'rating_asset',
+    resource_type: 'auto'
+  },
+});
+
+
 
 const uploadCloud = {
   imgUpload: multer({ storage: Productstorage }),
-
+  videoUpload : multer({ storage: ProductVideo }),
+  anyUpload:multer({ storage: anyUpload }),
 };
+
+
 
 module.exports = uploadCloud;
