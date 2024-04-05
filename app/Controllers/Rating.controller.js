@@ -12,6 +12,7 @@ exports.createPost = async (req, res) => {
     const post = new Ratings(
         generateRandomNumberWithDigits(5),
         parseInt(req.body.user_id),
+        parseInt(req.body.book_id),
         req.body.content,
         parseInt(req.body.n_star)
     )
@@ -49,11 +50,14 @@ exports.createPost = async (req, res) => {
 }
 
 exports.getALLUserPost = async (req, res) => {
+    const book_id = req.params.book_id
     try {
-        let posts = await Ratings.getUserRating()
-        const url_img = posts[0].urls.split(',')
-        posts[0].urls = url_img
-        res.status(200).json(posts[0])
+        const posts = await Ratings.getUserRating(book_id)
+        if(posts.length > 0) {
+            return res.status(200).json(posts)
+        }else{
+            return res.status(203).json({messages: 'Chưa có bình luận nào'})
+        }
     } catch (error) {
         res.status(404).json({messages: error.message})
     }
