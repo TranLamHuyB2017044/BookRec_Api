@@ -20,6 +20,20 @@ exports.UpdateVerify = async (req, res) => {
     }
 }
 
+exports.SendEmailVerify = async (req, res) => {
+    const UserInfo = {
+        email: req.body.email,
+        fullname: req.body.fullname
+    }
+    try {
+        const verifyNumber = generateRandomNumberWithDigits(5)
+        await User.VerifyEmail(UserInfo, verifyNumber)
+        res.status(200).json({verify: verifyNumber});
+    } catch (error) {
+        res.status(400).json({ message: error.message});
+    }
+}
+
 exports.Register = async (req, res) => {
 
     const newUser = new User({

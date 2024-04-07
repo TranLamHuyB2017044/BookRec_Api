@@ -23,12 +23,13 @@ class Ratings{
     }
 
     static async getUserRating(book_id){
-        const userquery = `join users us on us.user_id = rt.user_id`
-        const imageRatingQuery = `join ratingimages ri on rt.rating_id = ri.rating_id`
-        const groupbyRatingQuery = `GROUP BY rt.rating_id, us.fullname, rt.content, rt.n_star`
-        const query = `Select us.user_id, us.fullname, rt.content, rt.n_star, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} where rt.book_id = ${book_id} ${groupbyRatingQuery} `
-        const data = await db.query(query)
-        return data[0]
+        const userquery = `left join users us on us.user_id = rt.user_id`;
+        const imageRatingQuery = `left join ratingimages ri on rt.rating_id = ri.rating_id`;
+        const groupbyRatingQuery = `GROUP BY rt.rating_id, us.fullname, rt.content, rt.n_star`;
+        const orderByQuery = `ORDER BY rt.created_at DESC`; 
+        const query = `Select us.user_id, us.fullname, rt.content, rt.n_star,rt.created_at, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} where rt.book_id = ${book_id} ${groupbyRatingQuery} ${orderByQuery}`;
+        const data = await db.query(query);
+        return data[0];
     }
 }
 
