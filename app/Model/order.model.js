@@ -28,6 +28,12 @@ class Order{
         return data
     }
 
+    static async getAllOrders(){
+        const query = `select * from orders `
+        const data = await db.query(query)
+        return data[0]
+    }
+
     static async getAllUserOrders(user_id){
         const query = `select * from orders where user_id = ? `
         const data = await db.query(query, user_id)

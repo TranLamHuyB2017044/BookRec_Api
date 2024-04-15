@@ -62,3 +62,24 @@ exports.getAllUserOrder = async (req, res) => {
         res.status(401).json({ error: error.message })
     }
 }
+
+exports.getAllOrders = async (req, res) => {
+    try {
+        const AllOrder = await Order.getAllOrders()
+        const orderIds = AllOrder.map(order => order.order_id)
+        const orderItems = await OrderItem.getAllOrderItems(orderIds)
+        const data = AllOrder.map((order, id) => {
+            return {
+                ...order,
+                items: orderItems[id]
+            }
+
+        })
+
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(401).json({ error: error.message })
+    }
+}
+
+
