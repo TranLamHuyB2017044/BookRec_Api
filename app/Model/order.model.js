@@ -33,6 +33,11 @@ class Order{
         const data = await db.query(query)
         return data[0]
     }
+    static async getOrdersById(order_id){
+        const query = `select * from orders where order_id = ?`
+        const data = await db.query(query, order_id)
+        return data[0]
+    }
 
     static async getAllUserOrders(user_id){
         const query = `select * from orders where user_id = ? `
@@ -107,6 +112,16 @@ class OrderItem extends Order {
         const results = await Promise.all(promises);
         return results.map(result => result[0]);
     }
+
+    static async getOrderItemsById(orderId){
+        const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
+        const book_query = ' left Join books b on b.book_id = ot.book_id'
+        const selectQuery = `c.thumbnail_url, b.title, b.original_price, b.discount, ot.quantity`
+        const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} where order_id = ${orderId} `
+        return db.query(Query)
+    }
+
+
 }
 
 module.exports = {Order, OrderItem}

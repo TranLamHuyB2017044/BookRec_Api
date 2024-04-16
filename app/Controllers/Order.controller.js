@@ -83,3 +83,18 @@ exports.getAllOrders = async (req, res) => {
 }
 
 
+exports.getOrderById = async (req, res) => {
+    const order_id = req.params.order_id
+    try {
+        const one_order = await Order.getOrdersById(order_id)
+        const orderItems = await OrderItem.getOrderItemsById(order_id)
+        const data = {
+            ...one_order[0],
+            orderItems: orderItems[0]
+        }
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(401).json({ error: error.message })
+    }
+}
+

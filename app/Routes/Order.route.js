@@ -8,5 +8,7 @@ router.route('/')
     .get(Order.getAllOrders)
 router.route('/:user_id')
     .get(Order.getAllUserOrder)
+router.route('/detail/:order_id')
+    .get(Order.getOrderById)
 
 module.exports = router
