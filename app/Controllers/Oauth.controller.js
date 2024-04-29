@@ -9,7 +9,7 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:5000/auth/google/callback",
     passReqToCallback   : true
   },
-  async function(request, accessToken, refreshToken, profile, done) {
+  async function(request, accessToken, refreshToken, profile, done, ) {
     const id = profile.id.toString()
     const slice_id = id.slice(0,10)
     const user_id = parseInt(slice_id)
@@ -20,14 +20,16 @@ passport.use(new GoogleStrategy({
       verify: 1,
     }
     const insertQuery = 'INSERT INTO users (user_id, fullname, email, verify) VALUES (?, ?, ?, ?) ';
-    const selectQuery = 'SELECT * FROM users WHERE user_id = ?';
+    const selectQuery = 'SELECT * FROM users WHERE email = ?';
 
     try {
-      const [existingUser] = await db.query(selectQuery, [user.user_id])
+      const [existingUser] = await db.query(selectQuery, [user.email])
+      console.log(user.email, existingUser)
       if(existingUser.length == 0 ){
         await db.query(insertQuery, [user.user_id, user.fullname, user.email, user.verify])
+      }else{
+        return done(null)
       }
-      return done(null, user)
     } catch (error) {
       return done(error, null)
     }

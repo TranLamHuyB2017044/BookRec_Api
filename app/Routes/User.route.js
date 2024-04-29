@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router()
 const User = require('../Controllers/User.controller')
 
+
+
+router.route('/')
+    .get(User.getAllUsersAdmin)
 router.route('/register')
     .post(User.Register)
 router.route('/verifyEmail')

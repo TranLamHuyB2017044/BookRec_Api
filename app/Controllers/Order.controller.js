@@ -98,3 +98,30 @@ exports.getOrderById = async (req, res) => {
     }
 }
 
+
+exports.updateOrderStatus = async (req, res) =>{
+    try {
+       const order_id = req.params.order_id
+       const status = req.body.status
+       const updateOrder = await Order.updateStatusOrder(order_id, status)
+       res.status(200).json({status: 'success', data: updateOrder}) 
+    } catch (error) {
+        res.status(401).json({error: error.message})
+    }
+}
+
+exports.getStatisticsOrder = async (req, res) => {
+    try {
+        const typeOfStatistics = req.params.type
+        let data = null
+        if(typeOfStatistics === 'day'){
+            data = await Order.getStatisticsOrderToday()
+            return res.status(200).json(data)
+        }else{
+            data = await Order.getStatisticsOrderThisMonth()
+            return res.status(200).json(data)
+        }
+    } catch (error) {
+        return res.status(404).json(error.message)
+    }
+}

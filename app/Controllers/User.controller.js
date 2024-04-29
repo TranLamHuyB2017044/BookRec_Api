@@ -98,3 +98,14 @@ exports.LoginAdmin = async (req, res) => {
         return res.status(500).json(error.message);
     }
 }
+
+
+
+exports.getAllUsersAdmin = async (req, res ) => {
+    try {
+        const userList = await User.getAllUsers()
+        res.status(200).json(userList) 
+    } catch (error) {
+        res.status(404).json(error.message)
+    }
+}

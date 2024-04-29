@@ -44,6 +44,13 @@ app.get("/", (req, res) => {
 });
 
 
+
+// Login oauth failure
+app.get("/auth/google/failure", (req, res) => {
+  res.json({ message: "Your account has been created" });
+});
+
+
 app.listen(5000, () => {
   console.log(`Server running at http://localhost:${5000}`);
 });

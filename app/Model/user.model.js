@@ -86,6 +86,13 @@ class User {
         await db.query(query)
         return {message: 'success'}
     }
+
+    static async getAllUsers(){
+        const query = `SELECT user_id, fullname, email, phone, created_at FROM users`
+        const data = await db.query(query)
+        return data[0]
+    }
+
 }
 
 module.exports = User

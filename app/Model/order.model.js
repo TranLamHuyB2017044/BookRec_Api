@@ -78,6 +78,25 @@ class Order{
         }
         transporter.sendMail(mailOptions)
     }
+
+    static async updateStatusOrder(orderId, status){
+        const query = `update orders set payment_status = '${status}' where order_id = ${orderId} `
+        const data = await db.query(query)
+        return data[0]
+    }
+
+    static async getStatisticsOrderToday(){
+        const query = `SELECT DATE(order_date) AS ngay, COUNT(*) AS tong_so_don, SUM(total_price) AS tong_gia_tien FROM orders WHERE DATE(order_date) = CURDATE() GROUP BY DATE(order_date)`
+        console.log(query)
+        const data = await db.query(query)
+        return data[0]
+    }
+    static async getStatisticsOrderThisMonth(){
+        const query = `SELECT Month(order_date) AS thang, COUNT(*) AS tong_so_don, SUM(total_price) AS tong_gia_tien FROM orders  GROUP BY month(order_date)`
+        console.log(query)
+        const data = await db.query(query)
+        return data[0]
+    }
     
 }
 
@@ -120,6 +139,8 @@ class OrderItem extends Order {
         const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} where order_id = ${orderId} `
         return db.query(Query)
     }
+
+
 
 
 }

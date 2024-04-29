@@ -14,7 +14,6 @@ exports.getAllBooksAndNavigate = async (req, res) => {
         const data = { totalPage: totalPage, currentPage: currentPage, items: books }
         res.status(200).json(data)
     } catch (error) {
-        console.log(error)
         res.status(404).json({ message: error.message })
     }
 }
@@ -24,7 +23,6 @@ exports.getAllBooks = async (req, res) => {
         const bookList = await Book.getAllBooks()
         res.status(200).json(bookList)
     } catch (error) {
-        console.log(error)
         res.status(404).json({ message: error.message })
     }
 }
@@ -84,7 +82,6 @@ exports.getfilterBook = async (req, res) => {
         } else this.getAllBooksAndNavigate(req, res)
 
     } catch (error) {
-        console.log(error);
         res.status(404).json({ message: error.message });
     }
 };
@@ -96,7 +93,6 @@ exports.getBookById = async (req, res) => {
         const data = await Book.getOneBookByName(book_id)
         res.status(200).json(data[0])
     } catch (error) {
-        console.log(error)
         res.status(404).json({ error: error.message })
     }
 }
@@ -121,7 +117,6 @@ exports.AutocompleteSearchBook = async (req, res) => {
             this.getAllBooks(req, res)
         }
     } catch (error) {
-        console.log(error.message)
         res.status(500).json(error.message)
     }
 }
@@ -226,7 +221,6 @@ exports.updateBookAuthorInfo = async (req, res) => {
         }
     } catch (error) {
         res.status(404).json({message: error.message})
-        console.log(error)
     }
 }
 
@@ -247,7 +241,15 @@ exports.updateBookCoverInfo = async (req, res) => {
             return res.status(200).json({message: 'success', data: data})
         }
     } catch (error) {
-        return res.status(404).json({message: error.message})
+        if (req.files){
+            for (const file of req.files){
+                cloudinary.uploader.destroy(file.filename, {resource_type: 'video'})
+                cloudinary.uploader.destroy(file.filename, {resource_type: 'image'})
+                
+            }
+            return res.status(404).json({messages: error.message})
+        }
+        return res.status(404).json({messages: error.message})
     }
 }
 
