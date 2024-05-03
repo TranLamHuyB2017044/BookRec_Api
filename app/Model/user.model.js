@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 class User {
     constructor(UserDetail) {
         this.fullname = UserDetail.fullname;
+        this.user_ava = UserDetail.user_ava;
         this.email = UserDetail.email;
         this.verify = UserDetail.verify === 'true' ? 1 : 0;
         this.phone = UserDetail.phone;
@@ -37,7 +38,7 @@ class User {
 
 
     static async getOneUser(email) {
-        const query = 'SELECT * FROM users WHERE email = ?'
+        const query = 'SELECT * FROM users WHERE email = ? '
         const result = await db.query(query, [email])
         const [data] = result[0].map(user => user)
         if (data === undefined) {
@@ -93,6 +94,23 @@ class User {
         return data[0]
     }
 
+    static async updateUser(updateInfo){
+        const query = `UPDATE users 
+        SET 
+            fullname = ?,
+            user_ava = ?
+        WHERE 
+            user_id = ? ;`
+
+        const rs = await db.query(query, [updateInfo.fullname,  updateInfo.user_ava, updateInfo.user_id])
+        return {
+            rs,
+            newUser:{
+                fullname: updateInfo.fullname,
+                user_ava : updateInfo.user_ava
+            }
+        }
+    }
 }
 
 module.exports = User

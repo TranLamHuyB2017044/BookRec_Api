@@ -109,3 +109,40 @@ exports.getAllUsersAdmin = async (req, res ) => {
         res.status(404).json(error.message)
     }
 }
+
+
+exports.updateUserInfo = async (req, res) => {
+    try {
+        const userId = req.params.userid
+        const email = req.body.email
+        const existedUser = await User.getOneUser(email)
+        const userInfo = {
+            user_id: userId,
+            fullname: req.body.fullname ,
+        }
+        if (req.file){
+            userInfo.user_ava = req.file.path
+        }else{
+            userInfo.user_ava = existedUser.user_ava
+        }
+        const updatedUser = await User.updateUser(userInfo)
+        const userUpdated = {
+            user_id: existedUser.user_id,
+            fullname: updatedUser.newUser.fullname,
+            user_ava: updatedUser.newUser.user_ava,
+            email,
+            verify: existedUser.verify,
+            phone: existedUser.phone,
+            pass_word: existedUser.pass_word,
+            admin_role: existedUser.admin_role,
+            created_at: existedUser.created_at,
+        }
+        res.status(200).json(userUpdated)
+    } catch (error) {
+        if(req.file){
+            cloudinary.uploader.destroy(req.file.filename)
+            return res.status(404).json(error.message)
+        }
+        return res.status(404).json(error.message)
+    }
+}

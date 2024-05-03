@@ -62,3 +62,16 @@ exports.getALLUserPost = async (req, res) => {
         res.status(404).json({messages: error.message})
     }
 }
+
+exports.Statistic_Rating = async (req, res) => {
+    try {
+        const book_id = req.params.book_id
+        const data = await Ratings.countRating(book_id)
+        const numRating = await Ratings.countNumRating(book_id)
+        const all_Img = await Ratings.getAllImagebyBookId(book_id)
+        const rating_per_star = await Ratings.countRatingPerNStar(book_id)
+        res.status(200).json({info: data[0], all_media: all_Img, rating_per_star: rating_per_star, numRating: numRating})
+    } catch (error) {
+        res.status(404).json({ error: error.message })
+    }
+}

@@ -56,7 +56,7 @@ const loginSuccess = (req, res, next) => {
 const Logout = (req, res) => {
   req.logout();
   req.session = null;
-  res.redirect('http://localhost:3000')
+  res.redirect('http://localhost:3000/login')
 }
 
 

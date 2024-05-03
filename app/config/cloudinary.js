@@ -45,10 +45,18 @@ const anyUpload_product = new CloudinaryStorage({
 
 });
 
+const userUpload = new CloudinaryStorage({
+  cloudinary,
+  allowedFormats: ['jpg', 'png', 'jpeg'],
+  params: {
+    folder: 'user_ava',
+    resource_type: 'auto',
+  },
 
+});
 
 const uploadCloud = {
-  // imgUpload: multer({ storage: Productstorage }),
+  userAvaUpLoad: multer({ storage: userUpload }),
   // videoUpload : multer({ storage: ProductVideo }),
   anyUpload:multer({ storage: anyUpload }),
   anyUpload_product:multer({ storage: anyUpload_product }),

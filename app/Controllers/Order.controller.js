@@ -116,12 +116,39 @@ exports.getStatisticsOrder = async (req, res) => {
         let data = null
         if(typeOfStatistics === 'day'){
             data = await Order.getStatisticsOrderToday()
-            return res.status(200).json(data)
+            if(data.length > 0){
+                return res.status(200).json(data[0])
+            }else{
+                return res.status(200).json({tong_so_don: 0, tong_gia_tien: 0})
+            }
         }else{
             data = await Order.getStatisticsOrderThisMonth()
-            return res.status(200).json(data)
+            if(data.length > 0){
+                return res.status(200).json(data[0])
+            }else{
+                return res.status(200).json({tong_so_don: 0, tong_gia_tien: 0})
+            }
         }
     } catch (error) {
         return res.status(404).json(error.message)
+    }
+}
+
+
+exports.getTop5BestSellerBooks = async (req, res) => {
+    try {
+        const data = await Order.getBestSellerBooks()
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(404).json(error.message)
+    }
+}
+
+exports.getStatistic7DayAgo = async (req,res) => {
+    try {
+        const data = await Order.StatisticsOrder7DayAgo()
+        res.status(200).json(data[0])
+    } catch (error) {
+        res.status(404).json({error: error.message})
     }
 }
