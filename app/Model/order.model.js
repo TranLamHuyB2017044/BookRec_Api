@@ -122,11 +122,11 @@ class Order {
                     DATE_SUB(CURDATE(), INTERVAL (a.a) DAY) AS date
                 FROM 
                     (SELECT 0 AS a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6) AS a
-            ) AS date_range
+            ) AS date_range 
         LEFT JOIN 
-            orders ON DATE(orders.order_date) = date_range.date
+            orders ON DATE(orders.order_date) = date_range.date - 1 AND orders.payment_status = 'Đã thanh toán'
         GROUP BY 
-            date_range.date
+            date_range.date 
         ORDER BY 
             date_range.date;`
         const data = await db.query(query)

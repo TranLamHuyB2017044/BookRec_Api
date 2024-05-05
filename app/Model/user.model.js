@@ -89,7 +89,10 @@ class User {
     }
 
     static async getAllUsers(){
-        const query = `SELECT user_id, fullname, email, phone, created_at FROM users`
+        const orderQuery = `LEFT JOIN orders od ON u.user_id = od.user_id `;
+        const query = `SELECT u.user_id, fullname, email, u.phone, COUNT(od.user_id) AS num_orders, SUM(od.total_price) AS total_amount, u.created_at FROM users u
+                       ${orderQuery}
+                       GROUP BY u.user_id, fullname, email, phone, u.created_at`;        
         const data = await db.query(query)
         return data[0]
     }

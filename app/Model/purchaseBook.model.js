@@ -30,8 +30,8 @@ class bookPurchaseDetails extends bookPurchase{
 
 
     static async createPurchaseDetail(DetailInfo){
-        const query = `insert into book_purchase_detail values (?, ?, ?, ?)`
-        const data = await db.query(query, [DetailInfo.book_detail_id, DetailInfo.book_id, DetailInfo.quantity_ordered, DetailInfo.unit_price])
+        const query = `insert into book_purchase_detail values (?, ?, ?, ?, ?)`
+        const data = await db.query(query, [DetailInfo.purchase_detail_id, DetailInfo.purchase_id, DetailInfo.book_id, DetailInfo.quantity_ordered, DetailInfo.unit_price])
         return data[0]
     }
 }

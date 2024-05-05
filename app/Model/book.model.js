@@ -78,10 +78,17 @@ class Book{
         return result[0]
     }
 
+    
     static async searchBookByName(book_title){
         const query = `SELECT book_id, title, original_price, discount, inStock FROM books where title like '%${book_title}%'`
         const result = await db.query(query)
         return result
+    }
+
+    static async checkExistBook(book_title){
+        const query = `SELECT book_id, title FROM books where title = ?`
+        const result = await db.query(query, book_title)
+        return result[0]
     }
      
     
@@ -174,7 +181,12 @@ class Book{
         }
     }
 
-
+    static async updateQuantityBook(inStock, quantity_sold,  book_id){
+        const updateQuery = ` inStock = ?, quantity_sold = ? `
+        const updateBookQuery = `update books set ${updateQuery}  where book_id = ${book_id} `
+        const data = await db.query(updateBookQuery, [inStock, quantity_sold])
+        return data[0]
+    }
     static async getAuthorId (author_name){
         const query = `select author_id from authors where author_name = '${author_name}'`
         const data = await db.query(query)

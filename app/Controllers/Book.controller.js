@@ -2,6 +2,22 @@ const Book = require('../Model/book.model')
 const cloudinary = require("cloudinary").v2;
 
 
+
+exports.checkBookExist = async (req, res) => {
+    try {
+        const title = req.body.title;
+        const data = await Book.checkExistBook(title)
+        if(data.length > 0) {
+           return res.status(200).json({status: true, data: data});
+        }else{
+            return res.status(201).json({status: false})
+        }
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+}
+
+
 exports.getAllBooksAndNavigate = async (req, res) => {
     const currentPage = req.query.page || 1
     const itemsPerPage = 20
