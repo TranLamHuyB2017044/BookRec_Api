@@ -67,7 +67,6 @@ exports.getAllUserOrder = async (req, res) => {
             }
 
         })
-
         res.status(200).json(data)
     } catch (error) {
         res.status(401).json({ error: error.message })

@@ -270,7 +270,6 @@ exports.updateBookCoverInfo = async (req, res) => {
 }
 
 
-
 exports.updateBookInfo = async (req, res) => {
     const book_id = req.params.book_id
     try {

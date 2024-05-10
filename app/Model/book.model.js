@@ -86,7 +86,7 @@ class Book{
     }
 
     static async checkExistBook(book_title){
-        const query = `SELECT book_id, title FROM books where title = ?`
+        const query = `SELECT book_id, title, inStock FROM books where title = ?`
         const result = await db.query(query, book_title)
         return result[0]
     }
@@ -150,6 +150,59 @@ class Book{
     }
     
 
+    static async createNewBookWithoutMedia(book_info, author_info, publisher_info, manufacturer_info) {
+        try {
+            let author_id;
+            let publisher_id;
+            let manufacturer_id;
+    
+            const [existingAuthor] = await db.query("SELECT author_id FROM authors WHERE author_name = ?", [author_info.author_name]);
+            if (existingAuthor.length > 0) {
+                author_id = existingAuthor[0].author_id;
+            } else {
+                var authorResult = await db.query("INSERT INTO authors SET ?", author_info);
+                author_id = author_info.author_id;
+            }
+    
+            const [existingPublisher] = await db.query("SELECT publisher_id FROM publishers WHERE publisher_name = ?", [`${publisher_info.publisher_name}\r`]);
+            if (existingPublisher.length > 0) {
+                publisher_id = existingPublisher[0].publisher_id;
+            } else {
+                var publisherResult = await db.query("INSERT INTO publishers SET ?", publisher_info);
+                publisher_id = publisher_info.publisher_id;
+            }
+    
+            const [existingManufacturer] = await db.query("SELECT manufacturer_id FROM manufacturer WHERE manufacturer_name = ?", [`${manufacturer_info.manufacturer_name}\r`]);
+            if (existingManufacturer.length > 0) {
+                manufacturer_id = existingManufacturer[0].manufacturer_id;
+            } else {
+                var manufacturerResult = await db.query("INSERT INTO manufacturer SET ?", manufacturer_info);
+                manufacturer_id = manufacturer_info.manufacturer_id;
+            }
+    
+            // Thêm thông tin sách vào bảng books
+            const [bookResult] = await db.query("INSERT INTO books SET ?", book_info);
+    
+            // Thêm thông tin về tác giả và sách vào bảng book_authors
+            await db.query("INSERT INTO book_authors (book_id, author_id) VALUES (?, ?)", [book_info.book_id, author_id]);
+    
+            // Thêm thông tin về nhà xuất bản và sách vào bảng book_publishers
+            await db.query("INSERT INTO book_publishers (book_id, publisher_id) VALUES (?, ?)", [book_info.book_id, publisher_id]);
+    
+            // Thêm thông tin về nhà sản xuất và sách vào bảng book_manufacturers
+            await db.query("INSERT INTO book_manufacturers (book_id, manufacturer_id) VALUES (?, ?)", [book_info.book_id, manufacturer_id]);
+    
+            return {
+                book: bookResult,
+                author: authorResult || null, 
+                publisher: publisherResult || null, 
+                manufacturer: manufacturerResult || null 
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async deleteAllAddedData(book_id) {
         try {
             // Xóa thông tin từ bảng book_authors
@@ -187,6 +240,14 @@ class Book{
         const data = await db.query(updateBookQuery, [inStock, quantity_sold])
         return data[0]
     }
+
+    static async updateInstock(inStock,  book_id){
+        const updateQuery = ` inStock = ? `
+        const updateBookQuery = `update books set ${updateQuery}  where book_id = ${book_id} `
+        const data = await db.query(updateBookQuery, [inStock])
+        return data[0]
+    }
+
     static async getAuthorId (author_name){
         const query = `select author_id from authors where author_name = '${author_name}'`
         const data = await db.query(query)
