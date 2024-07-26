@@ -2,12 +2,13 @@ const db = require('../config/db')
 const nodemailer = require('nodemailer');
 
 class Ratings{
-    constructor(rating_id, user_id, book_id, content, n_star){
+    constructor(rating_id, user_id, book_id, content, n_star, user_status){
         this.rating_id = rating_id
         this.user_id = user_id
         this.book_id = book_id
         this.content = content
         this.n_star = n_star
+        this.user_status = user_status
     }
 
     async createRating(){
@@ -17,7 +18,8 @@ class Ratings{
             user_id: this.user_id,
             book_id: this.book_id,
             content: this.content,
-            n_star: this.n_star
+            n_star: this.n_star,
+            user_status: this.user_status
         })
         return data
     }
@@ -27,7 +29,7 @@ class Ratings{
         const imageRatingQuery = `left join ratingimages ri on rt.rating_id = ri.rating_id`;
         const groupbyRatingQuery = `GROUP BY rt.rating_id, us.fullname, rt.content, rt.n_star`;
         const orderByQuery = `ORDER BY rt.created_at DESC`; 
-        const query = `Select us.user_id, us.fullname, us.user_ava, rt.content, rt.n_star,rt.created_at, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} where rt.book_id = ${book_id} ${groupbyRatingQuery} ${orderByQuery}`;
+        const query = `Select us.user_id, us.fullname, us.user_ava, rt.content, rt.user_status, rt.n_star, rt.created_at, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} where rt.book_id = ${book_id} ${groupbyRatingQuery} ${orderByQuery}`;
         const data = await db.query(query);
         return data[0];
     }

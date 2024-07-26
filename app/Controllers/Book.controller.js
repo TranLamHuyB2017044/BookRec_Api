@@ -151,7 +151,7 @@ exports.createNewBook = async (req, res) => {
     const cover_id = generateRandomNumberWithDigits(5)
     const publisher_id = generateRandomNumberWithDigits(5)
     const manufacturer_id = generateRandomNumberWithDigits(5)
-    const { title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, discount, publication_date, author_name, publisher_name, manufacturer_name } = req.body
+    const { title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, publication_date, author_name, publisher_name, manufacturer_name } = req.body
 
     const results = req.files
     const book_info = {
@@ -164,7 +164,6 @@ exports.createNewBook = async (req, res) => {
         category,
         avg_rating,
         pages,
-        discount,
         publication_date,
     }
     const author_info = { author_id, author_name }
@@ -283,11 +282,20 @@ exports.updateBookInfo = async (req, res) => {
             category: req.body.category || book_exists[0].category,
             avg_rating: req.body.avg_rating || book_exists[0].avg_rating,
             pages: req.body.pages || book_exists[0].pages,
-            discount: req.body.discount || book_exists[0].discount,
         }
         const newBook =  await Book.updateBook(book_info, book_id)
         return res.status(200).json({message: 'success', data: newBook})
     } catch (error) {
         return res.status(404).json({message: error.message})
+    }
+}
+
+exports.getCategoriesBook = async (req, res) =>{
+    try {
+        const categories = await Book.getBooksCategory()
+        const categoryList = categories.map(book => book.category)
+        res.status(200).json(categoryList)
+    } catch (error) {
+        res.status(404).json({message: error.message})
     }
 }

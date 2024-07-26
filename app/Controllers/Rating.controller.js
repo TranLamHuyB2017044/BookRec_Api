@@ -14,7 +14,8 @@ exports.createPost = async (req, res) => {
         parseInt(req.body.user_id),
         parseInt(req.body.book_id),
         req.body.content,
-        parseInt(req.body.n_star)
+        parseInt(req.body.n_star),
+        req.body.user_status
     )
     try {
         const newPost = await post.createRating()

@@ -22,8 +22,8 @@ exports.CreatePurchaseOrder = async (req, res) => {
         await bookPurchase.CreateBookPurchase(purchase_info);
         for (const bookData of books) {
             const book_id = generateRandomNumberWithDigits(7);
-            const { title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, discount, publication_date, author_name, publisher_name, manufacturer_name } = bookData;
-            const book_info = { book_id, title, short_description, original_price: original_price + original_price * 0.1, inStock, quantity_sold, category, avg_rating, pages, discount, publication_date };
+            const { title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, publication_date, author_name, publisher_name, manufacturer_name } = bookData;
+            const book_info = { book_id, title, short_description, original_price: original_price, inStock, quantity_sold, category, avg_rating, pages, publication_date };
 
             // Tạo thông tin tác giả, nhà xuất bản, nhà sản xuất
             const author_id = generateRandomNumberWithDigits(5);
@@ -38,8 +38,8 @@ exports.CreatePurchaseOrder = async (req, res) => {
                 purchase_detail_id: generateRandomNumberWithDigits(5),
                 purchase_id: purchase_info.purchase_id,
                 book_id: book_id,
-                quantity_ordered: inStock,
-                unit_price: original_price,
+                quantity_ordered: parseInt(inStock),
+                unit_price: parseInt(original_price),
                 publisher_id: publisher_id,
             };
             const bookExist = await BookModel.checkExistBook(title);

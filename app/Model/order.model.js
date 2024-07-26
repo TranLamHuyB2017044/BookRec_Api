@@ -97,11 +97,11 @@ class Order {
     }
 
     static async getBestSellerBooks() {
-        const selectOption = `b.book_id, b.title, MAX(cv.thumbnail_url) AS thumbnail_url,b.original_price,b.discount,SUM(ot.quantity) AS so_luong_ban`
+        const selectOption = `b.book_id, b.title, MAX(cv.thumbnail_url) AS thumbnail_url,b.original_price, SUM(ot.quantity) AS so_luong_ban`
         const orderItemsQuery = `JOIN orderitems ot ON od.order_id = ot.order_id `
         const bookQuery = `JOIN books b ON ot.book_id = b.book_id `
         const coverBookQuery = `JOIN cover_books cv ON b.book_id = cv.book_id`
-        const groupByQuery = `GROUP BY b.book_id, b.title, b.original_price, b.quantity_sold, b.discount`
+        const groupByQuery = `GROUP BY b.book_id, b.title, b.original_price, b.quantity_sold `
         const conditonQuery = `Where od.payment_status = 'Đã thanh toán' `
         const query = `SELECT ${selectOption} FROM orders od ${orderItemsQuery} ${bookQuery} ${coverBookQuery} ${conditonQuery} ${groupByQuery} ORDER BY so_luong_ban DESC LIMIT 5;`
         const data = await db.query(query)
@@ -158,7 +158,7 @@ class OrderItem extends Order {
         const promises = orderIds.map(orderId => {
             const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
             const book_query = ' left Join books b on b.book_id = ot.book_id'
-            const selectQuery = `c.thumbnail_url, b.title, b.original_price, b.discount, ot.quantity `
+            const selectQuery = `c.thumbnail_url, b.title, b.original_price, ot.quantity `
             const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} where order_id = ${orderId} `
             return db.query(Query)
         })
@@ -169,7 +169,7 @@ class OrderItem extends Order {
     static async getOrderItemsById(orderId) {
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
         const book_query = ' left Join books b on b.book_id = ot.book_id'
-        const selectQuery = `c.thumbnail_url, b.title, b.original_price, b.discount, ot.quantity`
+        const selectQuery = `c.thumbnail_url, b.title, b.original_price, ot.quantity`
         const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} where order_id = ${orderId} `
         return db.query(Query)
     }

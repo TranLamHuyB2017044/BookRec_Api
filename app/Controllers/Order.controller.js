@@ -38,7 +38,6 @@ exports.createOrder = async (req, res) => {
         const items = req.body.items
         items.map(async (item) => {
             const book_for_placement = await Book.getBookById(item.book_id)
-            console.log(book_for_placement[0])
             const updateInfo = {
                 inStock: book_for_placement[0].inStock - item.quantity,
                 quantity_sold: book_for_placement[0].quantity_sold + item.quantity

@@ -11,27 +11,49 @@ class Book{
         this.category = BookDetails.category
         this.avg_rating = BookDetails.avg_rating
         this.pages = BookDetails.pages
-        this.discount = BookDetails.discount
         this.publication_date = BookDetails.publication_date
         this.created_at = BookDetails.created_at
     }
 
     static async getAllBooksAndNavigate(startIndex, itemsPerPage) {
-        const query = `SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, b.discount, c.thumbnail_url FROM books b left join cover_books c on b.book_id = c.book_id LIMIT ${startIndex}, ${itemsPerPage}`
+        const query = `SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url FROM books b left join cover_books c on b.book_id = c.book_id LIMIT ${startIndex}, ${itemsPerPage}`
         const result = await db.query(query)
         return result[0]
     }
 
     static async getAllBooks() {
-        const query = `SELECT book_id, title, original_price, discount, inStock FROM books `
+        const query = `SELECT book_id, title, original_price, inStock FROM books `
         const result = await db.query(query)
         return result[0]
     }
 
+    static async getAllBooksId() {
+        const query = `SELECT book_id FROM books `
+        const result = await db.query(query)
+        return result[0]
+    }
+
+    static async getBooksIdByCategory(book_category){
+        const query = `SELECT book_id FROM books where category ='${book_category}'`
+        const result = await db.query(query)
+        return result[0]
+    }
+
+    static async getBooksCategory(){
+        const query = `SELECT DISTINCT category FROM books ;`
+        const result = await db.query(query)
+        return result[0]
+    }
+
+    static async categoryExists(category_name) {
+        const query = `SELECT COUNT(book_id) as count FROM books WHERE category = '${category_name}' `
+        const result = await db.query(query);
+        console.log(result[0], query)
+        return result[0][0].count > 0;
+    }
     
     static async getCountALLBookQuery(){
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
-
         const countQuery = `SELECT count(b.book_id) as total from books b ${cover_book_query} `
         const countResult = await db.query(countQuery)
         const data = countResult[0]
@@ -55,7 +77,7 @@ class Book{
         const publisherQuery = ' left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id' 
         const manufacturerQuery = ' left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id' 
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
-        let query = `SELECT distinct b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, b.discount, c.thumbnail_url FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery}  where 1=1 ${condition}`
+        let query = `SELECT distinct b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery}  where 1=1 ${condition}`
         query += ` LIMIT ${startIndex}, ${itemsPerPage}`;
         const filterResult = await db.query(query)
         return filterResult
@@ -80,7 +102,9 @@ class Book{
 
     
     static async searchBookByName(book_title){
-        const query = `SELECT book_id, title, original_price, discount, inStock FROM books where title like '%${book_title}%'`
+        const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
+
+        const query = `SELECT b.book_id, title, original_price, inStock, c.thumbnail_url FROM books b ${cover_book_query} where title like '%${book_title}%'`
         const result = await db.query(query)
         return result
     }
@@ -88,6 +112,12 @@ class Book{
     static async checkExistBook(book_title){
         const query = `SELECT book_id, title, inStock FROM books where title = ?`
         const result = await db.query(query, book_title)
+        return result[0]
+    }
+
+    static async checkExistPublisher(publisher_name){
+        const query = `SELECT * from publishers where publisher_name = ?`
+        const result = await db.query(query, [publisher_name])
         return result[0]
     }
      
@@ -225,7 +255,7 @@ class Book{
     }
 
     static async updateBook(updateData, book_id){
-        const updateQuery = `title = '${updateData.title}', short_description = '${updateData.short_description}', original_price = ${updateData.original_price}, inStock = ${updateData.inStock}, quantity_sold = ${updateData.quantity_sold}, category = '${updateData.category}', avg_rating = ${updateData.avg_rating}, pages = ${updateData.pages}, discount = ${updateData.discount}`
+        const updateQuery = `title = '${updateData.title}', short_description = '${updateData.short_description}', original_price = ${updateData.original_price}, inStock = ${updateData.inStock}, quantity_sold = ${updateData.quantity_sold}, category = '${updateData.category}', avg_rating = ${updateData.avg_rating}, pages = ${updateData.pages}`
         const updateBookQuery = `update books set ${updateQuery}  where book_id = ${book_id}`
         await db.query(updateBookQuery)
         return {
