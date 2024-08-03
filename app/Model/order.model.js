@@ -156,10 +156,11 @@ class OrderItem extends Order {
 
     static async getAllOrderItems(orderIds) {
         const promises = orderIds.map(orderId => {
+            const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id left Join promotions p on bp.promotion_id = p.promotion_id'
             const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
             const book_query = ' left Join books b on b.book_id = ot.book_id'
-            const selectQuery = `c.thumbnail_url, b.title, b.original_price, ot.quantity `
-            const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} where order_id = ${orderId} `
+            const selectQuery = `c.thumbnail_url, b.title, b.original_price, ot.quantity, p.promotion_percent`
+            const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} ${promotion_book_query} where order_id = ${orderId} `
             return db.query(Query)
         })
         const results = await Promise.all(promises);
@@ -169,8 +170,9 @@ class OrderItem extends Order {
     static async getOrderItemsById(orderId) {
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
         const book_query = ' left Join books b on b.book_id = ot.book_id'
-        const selectQuery = `c.thumbnail_url, b.title, b.original_price, ot.quantity`
-        const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} where order_id = ${orderId} `
+        const promotion_query = ' left Join book_promotions bp on b.book_id = bp.book_id left join promotions p on bp.promotion_id = p.promotion_id'
+        const selectQuery = `c.thumbnail_url, b.title, b.original_price, ot.quantity, p.promotion_percent`
+        const Query = `select ${selectQuery}  from orderitems ot ${book_query} ${cover_book_query} ${promotion_query} where order_id = ${orderId} `
         return db.query(Query)
     }
 

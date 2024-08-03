@@ -1,12 +1,13 @@
 const db = require('../config/db')
 
 class Promotions {
-    constructor(promotion_id, promotion_name, promotion_percent, start_date, end_date) {
+    constructor(promotion_id, promotion_name, promotion_percent, start_date, end_date, promotion_status) {
         this.promotion_id = promotion_id
         this.promotion_name = promotion_name
         this.promotion_percent = promotion_percent
         this.start_date = start_date
         this.end_date = end_date
+        this.promotion_status = promotion_status
     }
 
     async CreatePromotion() {
@@ -16,7 +17,8 @@ class Promotions {
             promotion_name: this.promotion_name,
             promotion_percent: this.promotion_percent,
             start_date: this.start_date,
-            end_date: this.end_date
+            end_date: this.end_date,
+            promotion_status: this.promotion_status
         })
         return data
     }
@@ -34,12 +36,12 @@ class Promotions {
         return data
     }
 
+    
     static async getAllPromotions(){
         const query = `SELECT * FROM promotions `
         const results = await db.query(query) 
         return results[0]
     }
-
 
 
 }
