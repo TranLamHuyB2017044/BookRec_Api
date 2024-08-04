@@ -26,7 +26,7 @@ class Book {
     static async getAllBooks() {
         const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
         const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
-        const query = `SELECT b.book_id, title, original_price, inStock, p.promotion_percent FROM books b ${promotion_book_query} ${promotion_query}`
+        const query = `SELECT b.book_id, title, original_price, inStock, p.promotion_percent, p.promotion_status FROM books b ${promotion_book_query} ${promotion_query}`
         const result = await db.query(query)
         return result[0]
     }
@@ -102,7 +102,7 @@ class Book {
         const publisherQuery = ' left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id'
         const manufacturerQuery = ' left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id'
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
-        const query = `SELECT ${bookSelectQuery}, ${authorSelectQuery}, ${publisherSelectQuery}, ${manufacturerSelectQuery}, ${coverSelectQuery}, ${promotionSelectQuery} FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query} ${promotion_query} where b.book_id = ${id}`
+        const query = `SELECT ${bookSelectQuery}, ${authorSelectQuery}, ${publisherSelectQuery}, ${manufacturerSelectQuery}, ${coverSelectQuery}, ${promotionSelectQuery} FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query} ${promotion_query} where b.book_id = ${id} `
         const result = db.query(query)
         return result
     }
@@ -118,9 +118,9 @@ class Book {
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
         const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
         const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
-        const query = `SELECT p.promotion_percent, b.book_id, title, original_price, inStock, c.thumbnail_url FROM books b ${cover_book_query} ${promotion_book_query} ${promotion_query} where title like '%${book_title}%'`
+        const query = `SELECT distinct p.promotion_percent, p.promotion_status, b.book_id, title, original_price, inStock, c.thumbnail_url FROM books b ${cover_book_query} ${promotion_book_query} ${promotion_query} where title like '%${book_title}%' `
         const result = await db.query(query)
-        return result
+        return result[0]
     }
 
     static async checkExistBook(book_title) {

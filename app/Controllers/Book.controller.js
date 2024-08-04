@@ -7,10 +7,10 @@ exports.checkBookExist = async (req, res) => {
     try {
         const title = req.body.title;
         const data = await Book.checkExistBook(title)
-        if(data.length > 0) {
-           return res.status(200).json({status: true, data: data});
-        }else{
-            return res.status(201).json({status: false})
+        if (data.length > 0) {
+            return res.status(200).json({ status: true, data: data });
+        } else {
+            return res.status(201).json({ status: false })
         }
     } catch (error) {
         res.status(500).json(error.message)
@@ -128,7 +128,8 @@ exports.AutocompleteSearchBook = async (req, res) => {
     try {
         if (title) {
             const data = await Book.searchBookByName(title)
-            return res.status(200).json(data[0])
+            // const result = data.filter(book => book.promotion_status === 'Đang áp dụng' || book.promotion_status === null)
+            return res.status(200).json(data)
         } else {
             this.getAllBooks(req, res)
         }
@@ -187,7 +188,7 @@ exports.createNewBook = async (req, res) => {
 }
 
 exports.deleteBook = async (req, res) => {
-    const  book_id  = req.params.slug;
+    const book_id = req.params.slug;
     try {
         const data = await Book.deleteAllAddedData(book_id)
         res.status(200).json({ status: 'success', message: data })
@@ -203,39 +204,39 @@ exports.updateBookAuthorInfo = async (req, res) => {
         let author_id = 0
         const existAuthor = await Book.getAuthorId(author_name)
         const existBookAuthor = await Book.getBookAuthorInfo(book_id)
-        if(existBookAuthor.length > 0) {
+        if (existBookAuthor.length > 0) {
             // TH Đã tồn tại id_tácgiả và id_sách trong bảng book_authors
-            if(existAuthor.length > 0){
+            if (existAuthor.length > 0) {
                 // TH đã có tác giả trong database
                 author_id = existAuthor[0].author_id
                 const authorUpdate = await Book.updateAuthorBookInfo(author_id, book_id)
-                return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
-            }else{
+                return res.status(200).json({ status: 'success', authorUpdate: authorUpdate })
+            } else {
                 // TH chưa có tác giả trong database
                 const randomAuthorId = generateRandomNumberWithDigits(5)
                 const newAuthor = await Book.AddAuthorInfo(randomAuthorId, author_name)
                 author_id = newAuthor.author_id
                 const authorUpdate = await Book.updateAuthorBookInfo(author_id, book_id)
-                return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
+                return res.status(200).json({ status: 'success', authorUpdate: authorUpdate })
             }
-        }else {
+        } else {
             // TH chưa tồn tại id_tácgiả và id_sách trong bảng book_authors
-            if(existAuthor.length > 0 ){
+            if (existAuthor.length > 0) {
                 // TH đã có tác giả trong database
                 author_id = existAuthor[0].author_id
                 const authorUpdate = await Book.AddBookAuthors(book_id, author_id)
-                return res.status(200).json({status: 'success', authorUpdate: authorUpdate})
-            }else{
+                return res.status(200).json({ status: 'success', authorUpdate: authorUpdate })
+            } else {
                 // TH đã chưa tác giả trong database
                 const randomAuthorId = generateRandomNumberWithDigits(5)
                 const newAuthor = await Book.AddAuthorInfo(randomAuthorId, author_name)
                 author_id = newAuthor.author_id
                 const upDateAuthor = await Book.AddBookAuthors(book_id, author_id)
-                return res.status(200).json({status: 'success', authorUpdate: upDateAuthor})
+                return res.status(200).json({ status: 'success', authorUpdate: upDateAuthor })
             }
         }
     } catch (error) {
-        res.status(404).json({message: error.message})
+        res.status(404).json({ message: error.message })
     }
 }
 
@@ -245,26 +246,26 @@ exports.updateBookCoverInfo = async (req, res) => {
         const existImage = await Book.getImgBook(book_id)
         let cover_id = 0
         const cover_books = req.files
-        const cover_info = {thumbnail_url: cover_books[3].path, cover_url_1: cover_books[2].path, cover_url_2: cover_books[1].path, cover_url_3: cover_books[0].path }
-        if(existImage.length > 0) {
+        const cover_info = { thumbnail_url: cover_books[3].path, cover_url_1: cover_books[2].path, cover_url_2: cover_books[1].path, cover_url_3: cover_books[0].path }
+        if (existImage.length > 0) {
             cover_id = existImage[0].cover_id
             const data = await Book.updateImageBook(book_id, cover_info)
-            return res.status(200).json({message: 'success', data: data})
-        }else{
+            return res.status(200).json({ message: 'success', data: data })
+        } else {
             cover_id = generateRandomNumberWithDigits(5)
             const data = await Book.addImageBook(cover_id, cover_info, book_id)
-            return res.status(200).json({message: 'success', data: data})
+            return res.status(200).json({ message: 'success', data: data })
         }
     } catch (error) {
-        if (req.files){
-            for (const file of req.files){
-                cloudinary.uploader.destroy(file.filename, {resource_type: 'video'})
-                cloudinary.uploader.destroy(file.filename, {resource_type: 'image'})
-                
+        if (req.files) {
+            for (const file of req.files) {
+                cloudinary.uploader.destroy(file.filename, { resource_type: 'video' })
+                cloudinary.uploader.destroy(file.filename, { resource_type: 'image' })
+
             }
-            return res.status(404).json({messages: error.message})
+            return res.status(404).json({ messages: error.message })
         }
-        return res.status(404).json({messages: error.message})
+        return res.status(404).json({ messages: error.message })
     }
 }
 
@@ -283,19 +284,19 @@ exports.updateBookInfo = async (req, res) => {
             avg_rating: req.body.avg_rating || book_exists[0].avg_rating,
             pages: req.body.pages || book_exists[0].pages,
         }
-        const newBook =  await Book.updateBook(book_info, book_id)
-        return res.status(200).json({message: 'success', data: newBook})
+        const newBook = await Book.updateBook(book_info, book_id)
+        return res.status(200).json({ message: 'success', data: newBook })
     } catch (error) {
-        return res.status(404).json({message: error.message})
+        return res.status(404).json({ message: error.message })
     }
 }
 
-exports.getCategoriesBook = async (req, res) =>{
+exports.getCategoriesBook = async (req, res) => {
     try {
         const categories = await Book.getBooksCategory()
         const categoryList = categories.map(book => book.category)
         res.status(200).json(categoryList)
     } catch (error) {
-        res.status(404).json({message: error.message})
+        res.status(404).json({ message: error.message })
     }
 }
