@@ -14,13 +14,12 @@ const PromotionRouter = require("./app/Routes/Promotion.route");
 const passport = require('passport');
 const cookieSession = require('cookie-session');
 require("dotenv").config();
-app.use(
-  cookieSession({name: "session", keys:["lamhuy"], maxAge: 24 * 60 * 60 * 100})
-)
+
 app.use(session({
   secret: "cat",
   resave: false,
   saveUninitialized: true,
+  cookie: { secure: false }
 }))
 
 

@@ -4,8 +4,6 @@ const auth = require('../Controllers/Oauth.controller')
 const passport = require('passport')
 
 
-
-
 router.route('/auth/google')
     .get(passport.authenticate('google', {scope: ['email', 'profile']}))
 

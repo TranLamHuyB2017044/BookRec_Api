@@ -1,6 +1,6 @@
 const Book = require('../Model/book.model')
 const cloudinary = require("cloudinary").v2;
-
+const { createWorker } = require('tesseract.js');
 
 
 exports.checkBookExist = async (req, res) => {
@@ -298,5 +298,22 @@ exports.getCategoriesBook = async (req, res) => {
         res.status(200).json(categoryList)
     } catch (error) {
         res.status(404).json({ message: error.message })
+    }
+}
+
+
+exports.getRecognizeCoverBook = async (req, res) => {
+    const input_img = req.file;
+    try {
+        const worker = await createWorker(['eng', 'vie'])
+        const { data: { text } } = await worker.recognize(input_img.path, 'eng');
+        cloudinary.uploader.destroy(input_img.filename, { resource_type: 'image' })
+        res.status(200).json(text)
+        await worker.terminate();
+        console.log(text)
+    } catch (error) {
+        console.error('Error during OCR:', error);
+        cloudinary.uploader.destroy(input_img.filename, { resource_type: 'image' })
+        res.status(500).json({ error: 'Đã xảy ra lỗi khi xử lý ảnh.' });
     }
 }

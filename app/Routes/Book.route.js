@@ -23,6 +23,7 @@ Router.route('/author/:book_id')
 Router.route('/images/:book_id')
     .get(Book.getImageBook)
     .put(upLoad.anyUpload_product.array('coverBooks', 4), Book.updateBookCoverInfo)
-
+Router.route('/recognizeBook')
+    .post(upLoad.anyUpload_product.single('coverImage'), Book.getRecognizeCoverBook)
 
 module.exports = Router
