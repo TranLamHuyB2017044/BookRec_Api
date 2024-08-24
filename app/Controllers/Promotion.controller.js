@@ -96,3 +96,24 @@ exports.getPromotionById = async (req, res) => {
         res.status(404).json({ message: err.message });
     }
 }
+
+
+exports.updateStatusPromotion = async () => {
+    try {
+        const updatePromotion = await Promotions.updateStatusPromotions(promotion_status)
+        console.log('Promotion statuses updated:', updatePromotion);
+    } catch (error) {
+        console.error('Error updating promotion statuses:', error);
+    }
+}
+
+exports.updateStatusPromotionById = async (req, res) => {
+    const promotion_id = req.body.promotion_id;
+    const update_status = req.body.promotion_status;
+    try {
+        const updatePromotion = await Promotions.updateStatusPromotionsById(promotion_id, update_status)
+        res.status(200).json(updatePromotion)
+    } catch (error) {
+        res.status(401).json({message: error.message})
+    }
+}

@@ -36,21 +36,40 @@ class Promotions {
         return data
     }
 
-    
-    static async getAllPromotions(){
+
+    static async getAllPromotions() {
         const query = `SELECT * FROM promotions `
-        const results = await db.query(query) 
+        const results = await db.query(query)
         return results[0]
     }
 
 
-    static async getBookPromotions(promotion_id){
-        const book_query =  `left join books b on bp.book_id = b.book_id `
+    static async getBookPromotions(promotion_id) {
+        const book_query = `left join books b on bp.book_id = b.book_id `
         const cover_book_query = `left join cover_books cv on cv.book_id = b.book_id`;
         const select_query = ` bp.promotion_id, promotion_name, promotion_status, start_date, end_date, promotion_percent, b.title, cv.thumbnail_url`;
         const query = `select ${select_query} from book_promotions bp join promotions p on bp.promotion_id = p.promotion_id ${book_query} ${cover_book_query} where p.promotion_id = ? `
-        const results = await db.query(query, [promotion_id]) 
+        const results = await db.query(query, [promotion_id])
         return results[0]
+    }
+
+
+    static async updateStatusPromotions() {
+        const query = `UPDATE promotions
+        SET status = CASE
+            WHEN start_date <= NOW() AND status = 'Chưa áp dụng' THEN 'Đang áp dụng'
+            WHEN NOW() >= end_date AND status = 'Đang áp dụng' THEN 'Ngừng áp dụng'
+            ELSE status
+        END`
+        const results = await db.query(query)
+        return results[0]
+    }
+
+
+    static async updateStatusPromotionsById(promotion_id, status){
+        const query = `update promotions set promotion_status = '${status}' where promotion_id= ${promotion_id} `
+        const result = await db.query(query)
+        return result[0]
     }
 
 }

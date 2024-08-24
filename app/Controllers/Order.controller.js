@@ -8,6 +8,7 @@ function generateRandomNumberWithDigits(digits) {
 }
 
 
+
 exports.createOrder = async (req, res) => {
     const OrderInfo = new Order({
         order_id: generateRandomNumberWithDigits(5),
