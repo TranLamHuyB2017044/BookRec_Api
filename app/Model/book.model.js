@@ -18,7 +18,7 @@ class Book {
     static async getAllBooksAndNavigate(startIndex, itemsPerPage) {
         const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
         const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
-        const query = `SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url, p.promotion_percent FROM books b left join cover_books c on b.book_id  = c.book_id  ${promotion_book_query} ${promotion_query} LIMIT ${startIndex}, ${itemsPerPage}`
+        const query = `SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url, p.promotion_percent, p.promotion_status FROM books b left join cover_books c on b.book_id  = c.book_id  ${promotion_book_query} ${promotion_query} LIMIT ${startIndex}, ${itemsPerPage}`
         const result = await db.query(query)
         return result[0]
     }
@@ -82,7 +82,7 @@ class Book {
         const publisherQuery = ' left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id'
         const manufacturerQuery = ' left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id'
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
-        let query = `SELECT distinct b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url, pr.promotion_percent FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query}  where 1=1 ${condition}`
+        let query = `SELECT distinct b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url, pr.promotion_percent, pr.promotion_status FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query}  where 1=1 ${condition}`
         query += ` LIMIT ${startIndex}, ${itemsPerPage}`;
         const filterResult = await db.query(query)
         return filterResult

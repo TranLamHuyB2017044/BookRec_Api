@@ -30,11 +30,6 @@ class Promotions {
         return data;
     }
 
-    static async createUserPromotions(promotion_id, user_id) {
-        const query = `INSERT INTO user_promotions set ? `
-        const data = await db.query(query, [user_id, promotion_id])
-        return data
-    }
 
 
     static async getAllPromotions() {
