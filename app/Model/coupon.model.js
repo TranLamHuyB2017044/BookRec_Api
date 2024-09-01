@@ -1,7 +1,7 @@
 const db = require('../config/db')
 
 class Coupons {
-    constructor(coupon_id, coupon_name, coupon_percent, start_date, end_date, coupon_status, applying_condition) {
+    constructor(coupon_id, coupon_name, coupon_percent, start_date, end_date, coupon_status, applying_condition, coupon_type) {
         this.coupon_id = coupon_id
         this.coupon_name = coupon_name
         this.coupon_percent = coupon_percent
@@ -9,6 +9,7 @@ class Coupons {
         this.end_date = end_date
         this.coupon_status = coupon_status
         this.applying_condition = applying_condition
+        this.coupon_type = coupon_type
     }
 
     async CreateCoupon() {
@@ -20,7 +21,8 @@ class Coupons {
             start_date: this.start_date,
             end_date: this.end_date,
             coupon_status: this.coupon_status,
-            applying_condition :this.applying_condition
+            applying_condition :this.applying_condition,
+            coupon_type:this.coupon_type
         })
         return data
     }

@@ -7,6 +7,7 @@ const upLoad = require('../config/cloudinary')
 
 router.route('/')
     .get(User.getAllUsersAdmin)
+    .post(User.autoCompleteSearchUserByName)
 router.route('/register')
     .post(User.Register)
 router.route('/verifyEmail')

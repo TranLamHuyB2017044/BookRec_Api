@@ -145,4 +145,23 @@ exports.updateUserInfo = async (req, res) => {
         }
         return res.status(404).json(error.message)
     }
+
+
 }
+
+exports.autoCompleteSearchUserByName = async (req, res) =>{
+    const { fullname } = req.query;
+
+    try {
+        if (fullname){
+            const data = await User.getUserByName(fullname)
+            return res.status(200).json(data)
+
+        }else{
+            this.getAllUsersAdmin()
+        }
+    } catch (error) {
+        return res.status(404).json(error.message)
+    }
+}
+

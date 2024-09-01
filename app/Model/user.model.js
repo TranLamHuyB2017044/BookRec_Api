@@ -114,6 +114,20 @@ class User {
             }
         }
     }
+
+
+    static async getUserByName(fullname){
+        const query = `select fullname, user_id, user_ava, email from users where fullname like '%${fullname}%'`
+        const rs = await db.query(query)
+        return rs[0]
+
+    }
+
 }
+
+
+
+
+
 
 module.exports = User

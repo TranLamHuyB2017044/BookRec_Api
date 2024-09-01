@@ -9,7 +9,7 @@ function generateRandomNumberWithDigits(digits) {
 }
 
 exports.createUser_Coupon = async (req, res) => {
-    const { coupon_percent, date_start, date_end, coupon_name, applying_condition, user_ids } = req.body;
+    const { coupon_percent, date_start, date_end, coupon_name, applying_condition, user_ids, coupon_type } = req.body;
     const currentDate = new Date();
 
     let coupon_status;
@@ -29,6 +29,7 @@ exports.createUser_Coupon = async (req, res) => {
         date_end,
         coupon_status,
         applying_condition,
+        coupon_type
     );
 
     try {
@@ -44,3 +45,11 @@ exports.createUser_Coupon = async (req, res) => {
 }
 
 
+exports.getAllCoupon = async (req, res) => {
+    try {
+        const couponList = await Coupons.getAllcoupons()
+        res.status(200).json(couponList)
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
