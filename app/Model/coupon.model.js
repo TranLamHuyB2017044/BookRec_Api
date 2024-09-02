@@ -21,8 +21,8 @@ class Coupons {
             start_date: this.start_date,
             end_date: this.end_date,
             coupon_status: this.coupon_status,
-            applying_condition :this.applying_condition,
-            coupon_type:this.coupon_type
+            applying_condition: this.applying_condition,
+            coupon_type: this.coupon_type
         })
         return data
     }
@@ -42,7 +42,7 @@ class Coupons {
     }
 
 
-    static async updateStatuscouponsById(coupon_id, status){
+    static async updateStatuscouponsById(coupon_id, status) {
         const query = `update coupons set coupon_status = '${status}' where coupon_id= ${coupon_id} `
         const result = await db.query(query)
         return result[0]

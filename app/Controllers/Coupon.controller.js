@@ -53,3 +53,15 @@ exports.getAllCoupon = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+
+exports.updateStatusCouponById = async (req, res) => {
+    const coupon_id = req.body.coupon_id;
+    const update_status = req.body.coupon_status;
+    try {
+        const updateCoupon = await Coupons.updateStatuscouponsById(coupon_id, update_status)
+        res.status(200).json(updateCoupon)
+    } catch (error) {
+        res.status(401).json({message: error.message})
+    }
+}
