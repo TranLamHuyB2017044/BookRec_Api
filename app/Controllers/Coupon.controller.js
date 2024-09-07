@@ -36,6 +36,8 @@ exports.createUser_Coupon = async (req, res) => {
         await coupon.CreateCoupon()
         for (const user_id of user_ids){
             await Coupons.createUserCoupon(coupon.coupon_id, user_id)
+            const user = await User.getUserById(user_id)
+            await User.SendCouponEmail(user, coupon)
         }
         res.status(200).json({message: 'Tạo mã coupon thành công !'})
     } catch (error) {
@@ -63,5 +65,17 @@ exports.updateStatusCouponById = async (req, res) => {
         res.status(200).json(updateCoupon)
     } catch (error) {
         res.status(401).json({message: error.message})
+    }
+}
+
+
+exports.getUserCoupon = async (req, res) => {
+    const user_id = req.query.user_id
+
+    try {
+        const userCoupons = await Coupons.getUserCoupons(user_id) 
+        res.status(200).json(userCoupons)
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 }

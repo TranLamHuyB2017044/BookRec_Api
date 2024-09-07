@@ -19,5 +19,6 @@ router.route('/login/admin')
     .post(User.LoginAdmin)
 router.route('/update/:userid')
     .post(upLoad.userAvaUpLoad.single('user_ava'), User.updateUserInfo)
+
     
 module.exports = router

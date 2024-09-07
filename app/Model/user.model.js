@@ -76,8 +76,8 @@ class User {
         const mailOptions = {
             from: '"BookRec" <tlhuy02@gmail.com>',
             to: user.email,
-            subject: 'Verify your email',
-            html: `<p>Hello 👋 ${user.fullname}, Your verify number ${verifyNumber}</p>`
+            subject: 'Xác thư email của bạn',
+            html: `<p>Xin chào 👋 ${user.fullname}, mã số xác thực của bạn là ${verifyNumber}</p>`
         }
         transporter.sendMail(mailOptions)
     }
@@ -117,10 +117,45 @@ class User {
 
 
     static async getUserByName(fullname){
-        const query = `select fullname, user_id, user_ava, email from users where fullname like '%${fullname}%'`
+        const query = `select fullname, user_id, user_ava, email from users where fullname like '%${fullname}%' and verify = 1 `    
         const rs = await db.query(query)
         return rs[0]
 
+    }
+    
+    static async getUserById(user_id){
+        const query = `select fullname, email from users where user_id = ${user_id} `    
+        const rs = await db.query(query)
+        return rs[0][0]
+
+    }
+
+
+    static async SendCouponEmail(user, coupon_info) {
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, 
+            auth: {
+                user: "tlhuy02@gmail.com",
+                pass: process.env.MailPass,
+            },
+        })
+        const mailOptions = {
+            from: '"Bookrec book store" <bookrecstore@gmail.com>', 
+            to: user.email, 
+            subject: 'Bạn nhận được mã khuyến mãi từ cửa hàng chúng tôi', 
+            html: `
+                <p>Xin chào 👋 ${user.fullname}, chúng tôi vui mừng thông báo với bạn rằng</p>
+                <p>Bạn nhận được một mã khuyến mãi <strong>${coupon_info.coupon_name}</strong> từ cửa hàng chúng tôi.</p>
+                <p>Loại khuyến mãi <strong>${coupon_info.coupon_type}</strong> từ đơn hàng có giá trị từ ${coupon_info.applying_condition} vnđ</p>
+                <p>Để sử dụng, vui lòng chọn ở mục khuyến mãi trong phần thanh toán.</p>
+                <p>Ngày khuyến mãi là <strong>${coupon_info.start_date}</strong> và hạn sử dụng của khuyến mãi là <strong>${coupon_info.end_date}</strong>.</p>
+                <p>Chúc bạn có một trải nghiệm mua sắm tuyệt vời!</p>
+            `
+        };
+        transporter.sendMail(mailOptions)
     }
 
 }

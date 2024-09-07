@@ -41,6 +41,12 @@ class Coupons {
         return results[0]
     }
 
+    static async getUserCoupons(user_id) {
+        const query = `SELECT * FROM coupons cp join user_coupons ucp on cp.coupon_id = ucp.coupon_id where ucp.user_id = ${user_id} and cp.coupon_status = 'Đang áp dụng'`
+        const results = await db.query(query)
+        return results[0]
+    }
+
 
     static async updateStatuscouponsById(coupon_id, status) {
         const query = `update coupons set coupon_status = '${status}' where coupon_id= ${coupon_id} `
