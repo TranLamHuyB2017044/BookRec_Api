@@ -303,17 +303,25 @@ exports.getCategoriesBook = async (req, res) => {
 
 
 exports.getRecognizeCoverBook = async (req, res) => {
-    const input_img = req.file;
+    const input_imgs = req.files;
+
+    if (!input_imgs || input_imgs.length === 0) {
+        return res.status(400).json({ error: 'No image files provided.' });
+    }
+
     try {
         const worker = await createWorker(['eng', 'vie'])
-        const { data: { text } } = await worker.recognize(input_img.path, 'eng');
-        cloudinary.uploader.destroy(input_img.filename, { resource_type: 'image' })
-        res.status(200).json(text)
+        let ocrResults = [];
+        for (let input_img of input_imgs) {
+            const { data: { text } } = await worker.recognize(input_img.path, 'eng');
+            ocrResults.push({ filename: input_img.filename, text });
+            await cloudinary.uploader.destroy(input_img.filename, { resource_type: 'image' });
+        }
+        res.status(200).json({ results: ocrResults });
         await worker.terminate();
-        console.log(text)
     } catch (error) {
         console.error('Error during OCR:', error);
-        cloudinary.uploader.destroy(input_img.filename, { resource_type: 'image' })
+        cloudinary.uploader.destroy(input_imgs.filename, { resource_type: 'image' })
         res.status(500).json({ error: 'Đã xảy ra lỗi khi xử lý ảnh.' });
     }
 }

@@ -16,12 +16,34 @@ class Book {
     }
 
     static async getAllBooksAndNavigate(startIndex, itemsPerPage) {
-        const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
-        const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
-        const query = `SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url, p.promotion_percent, p.promotion_status FROM books b left join cover_books c on b.book_id  = c.book_id  ${promotion_book_query} ${promotion_query} LIMIT ${startIndex}, ${itemsPerPage}`
-        const result = await db.query(query)
-        return result[0]
+        const promotion_book_query = ' LEFT JOIN book_promotions bp ON b.book_id = bp.book_id';
+        const promotion_query = ' LEFT JOIN promotions p ON bp.promotion_id = p.promotion_id';
+        const cover_query = `
+            LEFT JOIN (
+                SELECT book_id, MIN(url) AS url
+                FROM cover_images_book
+                GROUP BY book_id
+            ) c ON b.book_id = c.book_id
+        `;
+        const query = `
+            SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.url, p.promotion_percent, p.promotion_status
+            FROM books b
+            ${cover_query}
+            ${promotion_book_query}
+            ${promotion_query}
+            LIMIT ${startIndex}, ${itemsPerPage}
+        `;
+        const result = await db.query(query);
+        return result[0];
     }
+    
+    // static async getAllBooksAndNavigate(startIndex, itemsPerPage) {
+    //     const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
+    //     const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
+    //     const query = `SELECT b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, c.thumbnail_url, p.promotion_percent, p.promotion_status FROM books b left join cover_books c on b.book_id  = c.book_id  ${promotion_book_query} ${promotion_query} LIMIT ${startIndex}, ${itemsPerPage}`
+    //     const result = await db.query(query)
+    //     return result[0]
+    // }
 
     static async getAllBooks() {
         const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
@@ -94,18 +116,35 @@ class Book {
         const authorSelectQuery = 'a.author_name'
         const publisherSelectQuery = 'publisher_name'
         const manufacturerSelectQuery = 'manufacturer_name'
-        const coverSelectQuery = 'thumbnail_url, cover_url_1, cover_url_2, cover_url_3'
+        const coverSelectQuery = 'url'
         const promotionSelectQuery = 'promotion_percent'
         const promotion_book_query = ' left Join book_promotions bpr on b.book_id = bpr.book_id'
         const promotion_query = ' left Join promotions pr on bpr.promotion_id = pr.promotion_id'
         const authorQuery = ' left Join book_authors ba on b.book_id = ba.book_id left join authors a on ba.author_id = a.author_id'
         const publisherQuery = ' left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id'
         const manufacturerQuery = ' left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id'
-        const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
+        const cover_book_query = ' left Join cover_images_book c on b.book_id = c.book_id'
         const query = `SELECT ${bookSelectQuery}, ${authorSelectQuery}, ${publisherSelectQuery}, ${manufacturerSelectQuery}, ${coverSelectQuery}, ${promotionSelectQuery} FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query} ${promotion_query} where b.book_id = ${id} `
         const result = db.query(query)
         return result
     }
+    // static async getOneBookByName(id) {
+    //     const bookSelectQuery = 'b.book_id, title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, publication_date, created_at'
+    //     const authorSelectQuery = 'a.author_name'
+    //     const publisherSelectQuery = 'publisher_name'
+    //     const manufacturerSelectQuery = 'manufacturer_name'
+    //     const coverSelectQuery = 'thumbnail_url, cover_url_1, cover_url_2, cover_url_3'
+    //     const promotionSelectQuery = 'promotion_percent'
+    //     const promotion_book_query = ' left Join book_promotions bpr on b.book_id = bpr.book_id'
+    //     const promotion_query = ' left Join promotions pr on bpr.promotion_id = pr.promotion_id'
+    //     const authorQuery = ' left Join book_authors ba on b.book_id = ba.book_id left join authors a on ba.author_id = a.author_id'
+    //     const publisherQuery = ' left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id'
+    //     const manufacturerQuery = ' left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id'
+    //     const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
+    //     const query = `SELECT ${bookSelectQuery}, ${authorSelectQuery}, ${publisherSelectQuery}, ${manufacturerSelectQuery}, ${coverSelectQuery}, ${promotionSelectQuery} FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query} ${promotion_query} where b.book_id = ${id} `
+    //     const result = db.query(query)
+    //     return result
+    // }
 
     static async getBookById(book_id) {
         const query = `SELECT * FROM books where book_id = ${book_id}`
