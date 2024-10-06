@@ -24,6 +24,7 @@ class Book {
             FROM books b
             ${promotion_book_query}
             ${promotion_query}
+            WHERE b.isDeleted = false
             LIMIT ${startIndex}, ${itemsPerPage}
         `;
         const result = await db.query(query);
@@ -41,31 +42,31 @@ class Book {
     static async getAllBooks() {
         const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
         const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
-        const query = `SELECT b.book_id, title, original_price, inStock, p.promotion_percent, p.promotion_status FROM books b ${promotion_book_query} ${promotion_query}`
+        const query = `SELECT b.book_id, title, original_price, inStock, p.promotion_percent, p.promotion_status FROM books b ${promotion_book_query} ${promotion_query} where isDeleted = false `
         const result = await db.query(query)
         return result[0]
     }
 
     static async getAllBooksId() {
-        const query = `SELECT book_id FROM books `
+        const query = `SELECT book_id FROM books where and isDeleted = false `
         const result = await db.query(query)
         return result[0]
     }
 
     static async getBooksIdByCategory(book_category) {
-        const query = `SELECT book_id FROM books where category ='${book_category}'`
+        const query = `SELECT book_id FROM books where category ='${book_category}' and isDeleted = false `
         const result = await db.query(query)
         return result[0]
     }
 
     static async getBooksCategory() {
-        const query = `SELECT DISTINCT category FROM books ;`
+        const query = `SELECT DISTINCT category FROM books where isDeleted = false ;`
         const result = await db.query(query)
         return result[0]
     }
 
     static async categoryExists(category_name) {
-        const query = `SELECT COUNT(book_id) as count FROM books WHERE category = '${category_name}' `
+        const query = `SELECT COUNT(book_id) as count FROM books WHERE category = '${category_name}' and isDeleted = false`
         const result = await db.query(query);
         console.log(result[0], query)
         return result[0][0].count > 0;
@@ -73,7 +74,7 @@ class Book {
 
     static async getCountALLBookQuery() {
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
-        const countQuery = `SELECT count(b.book_id) as total from books b ${cover_book_query} `
+        const countQuery = `SELECT count(b.book_id) as total from books b ${cover_book_query} where isDeleted = false`
         const countResult = await db.query(countQuery)
         const data = countResult[0]
         return data
@@ -84,7 +85,7 @@ class Book {
         const publisherQuery = 'left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id'
         const manufacturerQuery = 'left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id'
         const cover_book_query = 'left Join cover_books c on b.book_id = c.book_id'
-        const countQuey = `SELECT count(*) as total from books b ${cover_book_query} ${authorQuery} ${publisherQuery} ${manufacturerQuery}  where 1=1 ${condition} `
+        const countQuey = `SELECT count(*) as total from books b ${cover_book_query} ${authorQuery} ${publisherQuery} ${manufacturerQuery}  where 1=1 ${condition} and isDeleted = false`
         const countResults = await db.query(countQuey)
         const data = countResults[0]
         return data
@@ -96,8 +97,8 @@ class Book {
         const authorQuery = ' left Join book_authors ba on b.book_id = ba.book_id left join authors a on ba.author_id = a.author_id'
         const publisherQuery = ' left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id'
         const manufacturerQuery = ' left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id'
-        let query = `SELECT distinct b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, b.thumbnail_url, pr.promotion_percent, pr.promotion_status FROM books b   ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query}  where 1=1 ${condition}`
-        query += ` LIMIT ${startIndex}, ${itemsPerPage}`;
+        let query = `SELECT distinct b.book_id, b.title, b.quantity_sold, b.avg_rating, b.original_price, b.thumbnail_url, pr.promotion_percent, pr.promotion_status FROM books b   ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query}  where 1=1 ${condition} and b.isDeleted = false `
+        query += ` LIMIT ${startIndex}, ${itemsPerPage} `;
         const filterResult = await db.query(query)
         return filterResult
     }
@@ -202,7 +203,7 @@ class Book {
         const publisherQuery = ' left Join book_publishers bp on b.book_id = bp.book_id left join publishers p on bp.publisher_id = p.publisher_id'
         const manufacturerQuery = ' left Join book_manufacturers bm on b.book_id = bm.book_id left join manufacturer m on bm.manufacturer_id = m.manufacturer_id'
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
-        const query = `SELECT ${bookSelectQuery}, ${authorSelectQuery}, ${publisherSelectQuery}, ${manufacturerSelectQuery}, ${coverSelectQuery}, ${promotionSelectQuery} FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query} ${promotion_query} where b.book_id = ${id} `
+        const query = `SELECT ${bookSelectQuery}, ${authorSelectQuery}, ${publisherSelectQuery}, ${manufacturerSelectQuery}, ${coverSelectQuery}, ${promotionSelectQuery} FROM books b ${cover_book_query}  ${authorQuery} ${publisherQuery} ${manufacturerQuery} ${promotion_book_query} ${promotion_query} where b.book_id = ${id} and isDeleted = false `
         const result = db.query(query)
         return result
     }
@@ -218,7 +219,7 @@ class Book {
         const cover_book_query = ' left Join cover_books c on b.book_id = c.book_id'
         const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
         const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
-        const query = `SELECT distinct p.promotion_percent, p.promotion_status, b.book_id, title, original_price, inStock, c.thumbnail_url FROM books b ${cover_book_query} ${promotion_book_query} ${promotion_query} where title like '%${book_title}%' `
+        const query = `SELECT distinct p.promotion_percent, p.promotion_status, b.book_id, title, original_price, inStock, c.thumbnail_url FROM books b ${cover_book_query} ${promotion_book_query} ${promotion_query} where title like '%${book_title}%' and isDeleted = false `
         const result = await db.query(query)
         return result[0]
     }
@@ -347,21 +348,10 @@ class Book {
         }
     }
 
-    static async deleteAllAddedData(book_id) {
+    static async deleteBook(book_id) {
         try {
-            // Xóa thông tin từ bảng book_authors
-            await db.query("DELETE FROM book_authors WHERE book_id = ?", [book_id]);
-
-            // Xóa thông tin từ bảng book_publishers
-            await db.query("DELETE FROM book_publishers WHERE book_id = ?", [book_id]);
-
-            // Xóa thông tin từ bảng book_manufacturers
-            await db.query("DELETE FROM book_manufacturers WHERE book_id = ?", [book_id]);
-
-            // Xóa thông tin từ bảng cover_books
-            await db.query("DELETE FROM cover_books WHERE book_id = ?", [book_id]);
-            // Xóa thông tin từ bảng books
-            await db.query("DELETE FROM books WHERE book_id = ?", [book_id]);
+            const query = `update books set isDeleted = true where book_id = '${book_id}'`
+            await db.query(query)
             return `Book_id đã xóa: ${book_id}`
         } catch (error) {
             throw error;

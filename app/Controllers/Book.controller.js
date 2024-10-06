@@ -1,6 +1,10 @@
 const Book = require('../Model/book.model')
 const cloudinary = require("cloudinary").v2;
 const { createWorker } = require('tesseract.js');
+const sharp = require('sharp');
+const axios = require('axios');
+const uploadCloud = require('../config/cloudinary')
+
 
 
 exports.checkBookExist = async (req, res) => {
@@ -190,7 +194,7 @@ exports.createNewBook = async (req, res) => {
 exports.deleteBook = async (req, res) => {
     const book_id = req.params.slug;
     try {
-        const data = await Book.deleteAllAddedData(book_id)
+        const data = await Book.deleteBook(book_id)
         res.status(200).json({ status: 'success', message: data })
     } catch (error) {
         res.status(500).json(error.message)
@@ -302,6 +306,7 @@ exports.getCategoriesBook = async (req, res) => {
 }
 
 
+
 exports.getRecognizeCoverBook = async (req, res) => {
     const input_imgs = req.files;
 
@@ -309,19 +314,61 @@ exports.getRecognizeCoverBook = async (req, res) => {
         return res.status(400).json({ error: 'No image files provided.' });
     }
 
+    const ocrResults = [];
+    const worker = await createWorker(['eng', 'vie']);
+
     try {
-        const worker = await createWorker(['eng', 'vie'])
-        let ocrResults = [];
         for (let input_img of input_imgs) {
-            const { data: { text } } = await worker.recognize(input_img.path, 'eng');
-            ocrResults.push({ filename: input_img.filename, text });
-            await cloudinary.uploader.destroy(input_img.filename, { resource_type: 'image' });
+            const imageUrl = input_img.path; 
+
+            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+            const imageBuffer = Buffer.from(response.data, 'binary');
+
+            
+            const processedBuffer = await sharp(imageBuffer)
+            .greyscale()  
+            .modulate({ brightness: 1.5, contrast: 1.2 })  
+            .sharpen()  
+            .threshold(128)  
+            .blur(0.5)
+            .resize(1000, 1500, { fit: 'inside', withoutEnlargement: true })  
+            .extend({ top: 10, bottom: 10, left: 10, right: 10, background: { r: 255, g: 255, b: 255 } })  
+            .toBuffer();
+            
+            
+            const uploadStream = () => {
+                return new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: 'processedImage', format: 'jpg' },
+                        (error, result) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(result);
+                            }
+                        }
+                    );
+                    stream.end(processedBuffer); 
+                });
+            };
+
+            await uploadStream();
+
+            const { data: { text } } = await worker.recognize(processedBuffer, 'eng+vie');
+            ocrResults.push({ imageUrl, text });
+            await cloudinary.uploader.destroy(input_img.filename); 
+
         }
+
         res.status(200).json({ results: ocrResults });
-        await worker.terminate();
+
     } catch (error) {
         console.error('Error during OCR:', error);
-        cloudinary.uploader.destroy(input_imgs.filename, { resource_type: 'image' })
         res.status(500).json({ error: 'Đã xảy ra lỗi khi xử lý ảnh.' });
+    } finally {
+        for (let file of input_imgs) {
+            await cloudinary.uploader.destroy(file.filename); 
+        }
+        await worker.terminate();
     }
-}
+};
