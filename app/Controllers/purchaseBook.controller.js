@@ -13,7 +13,12 @@ function generateRandomNumberWithDigits(digits) {
 exports.CreatePurchaseOrder = async (req, res) => {
     try {
         const { user_id } = req.params;
-        const books = req.body;
+        let books = req.body;
+
+        if (!Array.isArray(books)) {
+            books = [books];
+        }
+
         const purchase_info = {
             purchase_id: generateRandomNumberWithDigits(5),
             user_id: parseInt(user_id)
@@ -67,7 +72,6 @@ exports.GetAllPurchaseOrders = async (req, res) => {
                 ...item,
                 items: PurchaseDetail[id],
             }
-
         })
 
         res.status(200).json(data)
