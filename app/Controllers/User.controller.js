@@ -26,7 +26,7 @@ exports.SendEmailVerify = async (req, res) => {
         fullname: req.body.fullname
     }
     try {
-        const verifyNumber = generateRandomNumberWithDigits(5)
+        const verifyNumber = generateRandomNumberWithDigits(6)
         await User.VerifyEmail(UserInfo, verifyNumber)
         res.status(200).json({verify: verifyNumber});
     } catch (error) {
@@ -44,7 +44,7 @@ exports.Register = async (req, res) => {
         pass_word: req.body.password,
         admin_role: req.body.admin_role,
     });
-    const verifyNumber = generateRandomNumberWithDigits(5)
+    const verifyNumber = generateRandomNumberWithDigits(6)
     try {
         await User.createUser(newUser);
         await User.VerifyEmail(newUser, verifyNumber)

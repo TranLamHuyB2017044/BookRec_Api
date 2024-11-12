@@ -324,7 +324,6 @@ exports.getRecognizeCoverBook = async (req, res) => {
             const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
             const imageBuffer = Buffer.from(response.data, 'binary');
 
-            
             const processedBuffer = await sharp(imageBuffer)
             .greyscale()  
             .modulate({ brightness: 1.5, contrast: 1.2 })  

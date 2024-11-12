@@ -30,7 +30,7 @@ class Book {
         const result = await db.query(query);
         return result[0];
     }
-    
+
     // static async getAllBooksAndNavigate(startIndex, itemsPerPage) {
     //     const promotion_book_query = ' left Join book_promotions bp on b.book_id = bp.book_id'
     //     const promotion_query = ' left Join promotions p on bp.promotion_id = p.promotion_id'
@@ -136,12 +136,12 @@ class Book {
     //         LEFT JOIN authors a ON ba.author_id = a.author_id
     //         WHERE ba.book_id = b.book_id
     //     ) as authors`
-    
+
     //     const publisherSelectQuery = `p.publisher_name`
     //     const manufacturerSelectQuery = `m.manufacturer_name`
     //     const coverSelectQuery = `JSON_ARRAYAGG(c.url) as cover_urls`
     //     const promotionSelectQuery = `pr.promotion_percent`
-    
+
     //     const promotion_book_query = `LEFT JOIN book_promotions bpr ON b.book_id = bpr.book_id`
     //     const promotion_query = `LEFT JOIN promotions pr ON bpr.promotion_id = pr.promotion_id`
     //     const publisherQuery = `
@@ -153,7 +153,7 @@ class Book {
     //         LEFT JOIN manufacturer m ON bm.manufacturer_id = m.manufacturer_id
     //     `
     //     const cover_book_query = `LEFT JOIN cover_images_book c ON b.book_id = c.book_id`
-    
+
     //     const query = `
     //         SELECT ${bookSelectQuery}, 
     //                ${authorSelectQuery}, 
@@ -184,12 +184,12 @@ class Book {
     //                  m.manufacturer_name, 
     //                  pr.promotion_percent
     //     `
-    
+
     //     const result = await db.query(query)
     //     return result[0]
     // }
-    
-    
+
+
     static async getOneBookByName(id) {
         const bookSelectQuery = 'b.book_id, title, short_description, original_price, inStock, quantity_sold, category, avg_rating, pages, publication_date, created_at'
         const authorSelectQuery = 'a.author_name'
@@ -359,15 +359,31 @@ class Book {
     }
 
     static async updateBook(updateData, book_id) {
-        const updateQuery = `title = '${updateData.title}', short_description = '${updateData.short_description}', original_price = ${updateData.original_price}, inStock = ${updateData.inStock}, quantity_sold = ${updateData.quantity_sold}, category = '${updateData.category}', avg_rating = ${updateData.avg_rating}, pages = ${updateData.pages}`
-        const updateBookQuery = `update books set ${updateQuery}  where book_id = ${book_id}`
-        await db.query(updateBookQuery)
+        const updateQuery = `
+            title = ?,
+            short_description = ?,
+            original_price = ?,
+            inStock = ?,
+            quantity_sold = ?,
+            category = ?,
+            avg_rating = ?,
+            pages = ?
+        `;
+        const updateBookQuery = `UPDATE books SET ${updateQuery} WHERE book_id = ?`;
+    
+        const values = [
+            ...Object.values(updateData),
+            book_id
+        ];
+    
+        await db.query(updateBookQuery, values);
+    
         return {
             book_id: book_id,
             newData: updateData
-        }
+        };
     }
-
+    
     static async updateQuantityBook(inStock, quantity_sold, book_id) {
         const updateQuery = ` inStock = ?, quantity_sold = ? `
         const updateBookQuery = `update books set ${updateQuery}  where book_id = ${book_id} `
