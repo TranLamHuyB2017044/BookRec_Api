@@ -85,6 +85,13 @@ class Order {
         return data[0]
     }
 
+    static async cancelStatusOrder(orderId) {
+        const query = `update orders set payment_status = 'Đã hủy' where order_id = ${orderId} `
+        const data = await db.query(query)
+        return data[0]
+    }
+    
+
     static async getStatisticsOrderToday() {
         const query = `SELECT DATE(order_date) AS ngay, COUNT(*) AS tong_so_don, SUM(total_price) AS tong_gia_tien FROM orders WHERE DATE(order_date) = CURDATE() and payment_status = 'Đã giao' GROUP BY DATE(order_date)`
         const data = await db.query(query)

@@ -120,6 +120,16 @@ exports.updateOrderStatus = async (req, res) => {
     }
 }
 
+exports.cancelOrder = async (req, res) => {
+    try {
+        const order_id = req.params.order_id
+        const updateOrder = await Order.cancelStatusOrder(order_id)
+        res.status(200).json({ status: 'success', data: updateOrder })
+    } catch (error) {
+        res.status(401).json({ error: error.message })
+    }
+}
+
 exports.getStatisticsOrder = async (req, res) => {
     try {
         const typeOfStatistics = req.params.type
