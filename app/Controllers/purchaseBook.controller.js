@@ -30,7 +30,6 @@ exports.CreatePurchaseOrder = async (req, res) => {
             const { title, short_description, original_price, inStock, category, pages, publication_date, author_name, publisher_name, manufacturer_name } = bookData;
             const book_info = { book_id, title, short_description, original_price: original_price, inStock, quantity_sold: 0, category, avg_rating : 0, pages, publication_date };
 
-            // Tạo thông tin tác giả, nhà xuất bản, nhà sản xuất
             const author_id = generateRandomNumberWithDigits(5);
             const author_info = { author_id, author_name };
             const publisher_id = generateRandomNumberWithDigits(5);
@@ -38,7 +37,6 @@ exports.CreatePurchaseOrder = async (req, res) => {
             const manufacturer_id = generateRandomNumberWithDigits(5);
             const manufacturer_info = { manufacturer_id, manufacturer_name };
 
-            // Tạo thông tin chi tiết đơn hàng mua
             const detailInfo = {
                 purchase_detail_id: generateRandomNumberWithDigits(5),
                 purchase_id: purchase_info.purchase_id,
@@ -73,7 +71,8 @@ exports.GetAllPurchaseOrders = async (req, res) => {
                 items: PurchaseDetail[id],
             }
         })
-
+        data.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
+        
         res.status(200).json(data)
     } catch (error) {
         res.status(404).json(error.message);

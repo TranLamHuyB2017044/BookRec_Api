@@ -24,7 +24,7 @@ exports.createPost = async (req, res) => {
             for (const file of req.files) {
                 const image_post = new Ratingimages(
                     generateRandomNumberWithDigits(5),
-                    file.path, 
+                    file.path,
                     post.rating_id,
                 );
 
@@ -37,15 +37,15 @@ exports.createPost = async (req, res) => {
             return res.status(200).json({ newPost });
         }
     } catch (error) {
-        if (req.files){
-            for (const file of req.files){
-                cloudinary.uploader.destroy(file.filename, {resource_type: 'video'})
-                cloudinary.uploader.destroy(file.filename, {resource_type: 'image'})
-                
+        if (req.files) {
+            for (const file of req.files) {
+                cloudinary.uploader.destroy(file.filename, { resource_type: 'video' })
+                cloudinary.uploader.destroy(file.filename, { resource_type: 'image' })
+
             }
-            return res.status(404).json({messages: error.message})
+            return res.status(404).json({ messages: error.message })
         }
-        return res.status(404).json({messages: error.message})
+        return res.status(404).json({ messages: error.message })
     }
 
 }
@@ -54,13 +54,13 @@ exports.getALLUserPost = async (req, res) => {
     const book_id = req.params.book_id
     try {
         const posts = await Ratings.getUserRating(book_id)
-        if(posts.length > 0) {
+        if (posts.length > 0) {
             return res.status(200).json(posts)
-        }else{
-            return res.status(203).json({messages: 'Chưa có bình luận nào'})
+        } else {
+            return res.status(203).json({ messages: 'Chưa có bình luận nào' })
         }
     } catch (error) {
-        res.status(404).json({messages: error.message})
+        res.status(404).json({ messages: error.message })
     }
 }
 
@@ -71,8 +71,20 @@ exports.Statistic_Rating = async (req, res) => {
         const numRating = await Ratings.countNumRating(book_id)
         const all_Img = await Ratings.getAllImagebyBookId(book_id)
         const rating_per_star = await Ratings.countRatingPerNStar(book_id)
-         res.status(200).json({info: data[0], all_media: all_Img, rating_per_star: rating_per_star, numRating: numRating})
+        res.status(200).json({ info: data[0], all_media: all_Img, rating_per_star: rating_per_star, numRating: numRating })
     } catch (error) {
         res.status(404).json({ error: error.message })
     }
 }
+
+exports.GetStatisticRatingByStatus = async (req, res) => {
+    try {
+
+        const data = await Ratings.getAllRatingsByStatus()
+        res.status(200).json(data)
+
+    } catch (error) {
+        res.status(404).json({ error: error.message })
+    }
+}
+
