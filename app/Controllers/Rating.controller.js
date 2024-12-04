@@ -79,8 +79,20 @@ exports.Statistic_Rating = async (req, res) => {
 
 exports.GetStatisticRatingByStatus = async (req, res) => {
     try {
-
         const data = await Ratings.getAllRatingsByStatus()
+        res.status(200).json(data)
+
+    } catch (error) {
+        res.status(404).json({ error: error.message })
+    }
+}
+
+exports.GetFilterRatingByStar = async (req, res) => {
+    try {
+
+        const book_id = req.params.book_id
+        const {n_star} = req.query
+        const data = await Ratings.filterRatingsByStar(book_id, n_star)
         res.status(200).json(data)
 
     } catch (error) {

@@ -10,5 +10,7 @@ Router.route('/statistic/:book_id')
     .get(Rating.Statistic_Rating)
 Router.route('/:book_id')
     .get(Rating.getALLUserPost)
+Router.route('/filter/:book_id')
+    .get(Rating.GetFilterRatingByStar)
 
 module.exports = Router

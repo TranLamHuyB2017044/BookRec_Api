@@ -59,13 +59,30 @@ class Ratings {
     }
 
     static async filterRatingsByStar(book_id, n_star) {
-        const query = `SELECT * 
-            FROM reviews 
-            WHERE n_star = ? AND book_id = ?`
-        const data = await db.query(query, [n_star, book_id]);
-        return data[0]
+        const userQuery = `LEFT JOIN users us ON us.user_id = rt.user_id`;
+        const imageRatingQuery = `LEFT JOIN ratingimages ri ON rt.rating_id = ri.rating_id`;
+        const groupByRatingQuery = `GROUP BY rt.rating_id, us.fullname, rt.content, rt.n_star`;
+        const orderByQuery = `ORDER BY rt.created_at DESC`;
+        const query = `
+            SELECT 
+                us.user_id, 
+                us.fullname, 
+                us.user_ava, 
+                rt.content, 
+                rt.user_status, 
+                rt.n_star, 
+                rt.created_at, 
+                GROUP_CONCAT(ri.url) AS urls 
+            FROM ratings rt 
+            ${imageRatingQuery} 
+            ${userQuery} 
+            WHERE rt.book_id = ${book_id} AND rt.n_star = ${n_star} 
+            ${groupByRatingQuery} 
+            ${orderByQuery}`;
+        const data = await db.query(query);
+        return data[0];
     }
-
+    
     static async getAllImagebyBookId(book_id) {
         const rating_image_query = `join ratingimages rti on rt.rating_id = rti.rating_id`
         const rating_query = `select rti.url from ratings rt ${rating_image_query} where rt.book_id = ? ;`
