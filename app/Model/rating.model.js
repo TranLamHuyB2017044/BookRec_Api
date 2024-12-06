@@ -24,11 +24,10 @@ class Ratings {
         return data
     }
 
-    static async getAllRatingsByStatus() {
-        const query = `SELECT user_status, COUNT(*) AS rating_count
+    static async getAllRatingsByStar() {
+        const query = `SELECT n_star, COUNT(*) AS rating_count
             FROM ratings
-            WHERE user_status IN ('Cực kì hài lòng', 'Bình thường', 'Rất không hài lòng')
-            GROUP BY user_status
+            GROUP BY n_star
             `
         const data = await db.query(query);
         return data[0];

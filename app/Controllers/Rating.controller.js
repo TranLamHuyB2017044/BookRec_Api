@@ -77,9 +77,9 @@ exports.Statistic_Rating = async (req, res) => {
     }
 }
 
-exports.GetStatisticRatingByStatus = async (req, res) => {
+exports.GetStatisticRatingByStar = async (req, res) => {
     try {
-        const data = await Ratings.getAllRatingsByStatus()
+        const data = await Ratings.getAllRatingsByStar()
         res.status(200).json(data)
 
     } catch (error) {
