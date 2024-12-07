@@ -80,6 +80,63 @@ class bookPurchaseDetails extends bookPurchase {
         return results[0][0]?.total_amount || 0;
     }
 
+    static async getMonthlyRevenueAndExpenseQuery() {
+        const calendarQuery = `
+            SELECT 
+                MONTH(DATE_ADD('2024-01-01', INTERVAL seq MONTH)) AS month,
+                YEAR(DATE_ADD('2024-01-01', INTERVAL seq MONTH)) AS year
+            FROM (
+                SELECT 0 AS seq UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL 
+                SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL 
+                SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11
+            ) AS months
+        `;
+    
+        const purchaseDetailsQuery = `
+            SELECT 
+                DATE_FORMAT(p.order_date, '%Y-%m') AS month,
+                SUM(pd.quantity_ordered * pd.unit_price) AS total_expense
+            FROM 
+                book_purchase p
+            JOIN 
+                book_purchase_detail pd ON p.purchase_id = pd.purchase_id
+            GROUP BY 
+                DATE_FORMAT(p.order_date, '%Y-%m')
+        `;
+    
+        const orderDetailsQuery = `
+            SELECT 
+                DATE_FORMAT(o.order_date, '%Y-%m') AS month,
+                SUM(o.total_price) AS total_revenue
+            FROM 
+                orders o
+            GROUP BY 
+                DATE_FORMAT(o.order_date, '%Y-%m')
+        `;
+    
+        const mainQuery = `
+            WITH calendar AS (${calendarQuery}),
+                purchase_details AS (${purchaseDetailsQuery}),
+                order_details AS (${orderDetailsQuery})
+            SELECT 
+                c.month,
+                c.year,
+                COALESCE(o.total_revenue, 0) AS total_revenue,
+                COALESCE(p.total_expense, 0) AS total_expense
+            FROM 
+                calendar c
+            LEFT JOIN order_details o 
+                ON DATE_FORMAT(DATE_ADD('2024-01-01', INTERVAL (c.month - 1) MONTH), '%Y-%m') = o.month
+            LEFT JOIN purchase_details p 
+                ON DATE_FORMAT(DATE_ADD('2024-01-01', INTERVAL (c.month - 1) MONTH), '%Y-%m') = p.month
+            ORDER BY 
+                c.year, c.month;
+        `;
+        const data = await db.query(mainQuery);
+        return data[0];
+
+    }
+    
 
 
 }

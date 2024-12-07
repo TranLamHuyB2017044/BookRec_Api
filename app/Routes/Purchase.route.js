@@ -8,6 +8,8 @@ Router.route('/')
     .get(purchaseBook.GetAllPurchaseOrders)
 Router.route('/getTotalMoutSpent')
     .get(purchaseBook.getTotalMountSpent)
+Router.route('/getMonthlyStatistics')
+    .get(purchaseBook.getMonthlyStatistics)
 Router.route('/:user_id')
     .post(purchaseBook.CreatePurchaseOrder)
 
