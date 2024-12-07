@@ -110,6 +110,7 @@ class bookPurchaseDetails extends bookPurchase {
                 SUM(o.total_price) AS total_revenue
             FROM 
                 orders o
+            where o.payment_status = 'Đã giao'
             GROUP BY 
                 DATE_FORMAT(o.order_date, '%Y-%m')
         `;

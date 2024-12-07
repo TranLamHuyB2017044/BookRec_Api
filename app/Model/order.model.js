@@ -90,16 +90,24 @@ class Order {
         const data = await db.query(query)
         return data[0]
     }
-    
+
 
     static async getStatisticsOrderToday() {
-        const query = `SELECT DATE(order_date) AS ngay, COUNT(*) AS tong_so_don, SUM(total_price) AS tong_gia_tien FROM orders WHERE DATE(order_date) = CURDATE() and payment_status = 'Đã giao' GROUP BY DATE(order_date)`
+        const query = `SELECT DATE(order_date) AS ngay, COUNT(*) AS tong_so_don, SUM(total_price) AS tong_doanh_thu FROM orders WHERE DATE(order_date) = CURDATE() and payment_status = 'Đã giao' GROUP BY DATE(order_date)`
         const data = await db.query(query)
         return data[0]
     }
-    
+
     static async getStatisticsOrderThisMonth() {
-        const query = `SELECT Month(order_date) AS thang, COUNT(*) AS tong_so_don, SUM(total_price) AS tong_gia_tien FROM orders where payment_status = 'Đã giao' GROUP BY month(order_date)`
+        const query = `SELECT 
+            COUNT(*) AS tong_so_don, 
+            SUM(total_price) AS tong_doanh_thu
+        FROM 
+            orders
+        WHERE 
+            payment_status = 'Đã giao' 
+            AND YEAR(order_date) = YEAR(CURDATE()) 
+            AND MONTH(order_date) = MONTH(CURDATE())`
         const data = await db.query(query)
         return data[0]
     }
