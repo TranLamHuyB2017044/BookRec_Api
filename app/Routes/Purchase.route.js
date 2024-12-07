@@ -6,6 +6,8 @@ const upLoad = require('../config/cloudinary')
 
 Router.route('/')
     .get(purchaseBook.GetAllPurchaseOrders)
+Router.route('/getTotalMoutSpent')
+    .get(purchaseBook.getTotalMountSpent)
 Router.route('/:user_id')
     .post(purchaseBook.CreatePurchaseOrder)
 

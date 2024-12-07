@@ -113,3 +113,15 @@ exports.GetAllPurchaseOrders = async (req, res) => {
         });
     }
 };
+
+
+exports.getTotalMountSpent = async (req, res) => {
+    try {
+        const typeFilter = req.query.type;
+        const data = await bookPurchaseDetails.getTotalAmountSpent(typeFilter)
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json(error.message);
+        
+    }
+}
