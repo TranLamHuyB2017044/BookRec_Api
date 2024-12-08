@@ -17,7 +17,10 @@ router.route('/statistics')
     .get(Order.getStatistic7DayAgo)
 router.route('/statistics/:type')
     .get(Order.getStatisticsOrder)
+router.route('/report')
+    .get(Order.getStatisticReport)
 router.route('/:user_id')
     .get(Order.getAllUserOrder)
+
 
 module.exports = router

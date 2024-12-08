@@ -112,6 +112,67 @@ class Order {
         return data[0]
     }
 
+    static async getCountOrderThisMonth() {
+        const query = `
+            WITH filtered_orders AS (
+                SELECT * 
+                FROM orders 
+                WHERE YEAR(order_date) = YEAR(CURDATE()) 
+                  AND MONTH(order_date) = MONTH(CURDATE())
+            )
+            SELECT 
+                (SELECT COUNT(*) FROM filtered_orders) AS tong_so_don,
+                (SELECT COUNT(*) FROM filtered_orders WHERE payment_status = 'Đã giao') AS so_don_da_giao,
+                (SELECT COUNT(*) FROM filtered_orders WHERE payment_status = 'Đã hủy') AS so_don_da_huy,
+                (SELECT SUM(total_price) FROM filtered_orders WHERE payment_status = 'Đã giao') AS tong_doanh_thu,
+                COALESCE(
+                    JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'ten_sach', book_stats.ten_sach,
+                            'so_luong_da_ban', book_stats.so_luong_da_ban,
+                            'tong_gia_tien', book_stats.tong_gia_tien
+                        )
+                    ), 
+                    JSON_ARRAY()
+                ) AS danh_sach_sach
+            FROM (
+                SELECT 
+                    b.title AS ten_sach,
+                    SUM(oi.quantity) AS so_luong_da_ban,
+                    SUM(oi.quantity * b.original_price) AS tong_gia_tien
+                FROM 
+                    orderitems oi
+                INNER JOIN 
+                    filtered_orders o ON oi.order_id = o.order_id
+                INNER JOIN 
+                    books b ON oi.book_id = b.book_id
+                WHERE 
+                    o.payment_status = 'Đã giao'
+                GROUP BY 
+                    b.title
+            ) AS book_stats;
+        `;
+        try {
+            const data = await db.query(query);
+            if (!data || data.length === 0) {
+                return {
+                    tong_so_don: 0,
+                    so_don_da_giao: 0,
+                    so_don_da_huy: 0,
+                    tong_doanh_thu: 0,
+                    danh_sach_sach: []
+                };
+            }
+    
+            return data[0];
+        } catch (error) {
+            console.error('Lỗi khi thực hiện truy vấn:', error);
+            throw new Error('Không thể lấy dữ liệu thống kê');
+        }
+    }
+    
+
+
     static async getBestSellerBooks() {
         const selectOption = `b.book_id, b.title, MAX(cv.thumbnail_url) AS thumbnail_url,b.original_price, SUM(ot.quantity) AS so_luong_ban`
         const orderItemsQuery = `JOIN orderitems ot ON od.order_id = ot.order_id `
