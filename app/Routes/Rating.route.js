@@ -10,6 +10,8 @@ Router.route('/statistic/:book_id')
     .get(Rating.Statistic_Rating)
 Router.route('/:book_id')
     .get(Rating.getALLUserPost)
+Router.route('/reply/:rating_id')
+    .put(Rating.UpdateRatingById)
 Router.route('/filter/:book_id')
     .get(Rating.GetFilterRatingByStar)
 

@@ -39,7 +39,7 @@ class Ratings {
         const imageRatingQuery = `left join ratingimages ri on rt.rating_id = ri.rating_id`;
         const groupbyRatingQuery = `GROUP BY rt.rating_id, us.fullname, rt.content, rt.n_star`;
         const orderByQuery = `ORDER BY rt.created_at DESC`;
-        const query = `Select us.user_id, us.fullname, us.user_ava, rt.content, rt.user_status, rt.n_star, rt.created_at, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} where rt.book_id = ${book_id} ${groupbyRatingQuery} ${orderByQuery}`;
+        const query = `Select rt.rating_id, us.user_id, us.fullname, us.user_ava, rt.content, rt.user_status, rt.n_star, rt.created_at, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} where rt.isHidden = 0 AND rt.book_id = ${book_id} ${groupbyRatingQuery} ${orderByQuery}`;
         const data = await db.query(query);
         return data[0];
     }
@@ -72,10 +72,10 @@ class Ratings {
                 rt.n_star, 
                 rt.created_at, 
                 GROUP_CONCAT(ri.url) AS urls 
-            FROM ratings rt 
+            FROM ratings rt
             ${imageRatingQuery} 
             ${userQuery} 
-            WHERE rt.book_id = ${book_id} AND rt.n_star = ${n_star} 
+            WHERE rt.isHidden = 0 AND rt.book_id = ${book_id} AND rt.n_star = ${n_star}
             ${groupByRatingQuery} 
             ${orderByQuery}`;
         const data = await db.query(query);
@@ -92,6 +92,15 @@ class Ratings {
     static async countRatingPerNStar(book_id) {
         const query = `select count(rt.rating_id) as num_rating , rt.n_star from ratings rt left join ratingimages ri on ri.rating_id = rt.rating_id where book_id = ? group by rt.n_star order by rt.n_star desc;`
         const data = await db.query(query, book_id)
+        return data[0]
+    }
+
+    static async updateRatingStatus(rating_id) {
+        const query = `UPDATE ratings
+            SET isHidden = 1
+            WHERE rating_id = ?;
+        `   
+        const data = await db.query(query, rating_id)
         return data[0]
     }
 }
@@ -117,5 +126,6 @@ class Ratingimages {
 
 
 }
+
 
 module.exports = { Ratings, Ratingimages }
