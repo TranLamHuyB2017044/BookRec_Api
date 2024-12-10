@@ -37,9 +37,10 @@ class Ratings {
     static async getUserRating(book_id) {
         const userquery = `left join users us on us.user_id = rt.user_id`;
         const imageRatingQuery = `left join ratingimages ri on rt.rating_id = ri.rating_id`;
-        const groupbyRatingQuery = `GROUP BY rt.rating_id, us.fullname, rt.content, rt.n_star`;
+        const replyRatingQuery = `left join reply rl on rt.rating_id = rl.rating_id`;
+        const groupbyRatingQuery = `GROUP BY rt.rating_id, rl.content, rl.created_at, us.fullname, rt.content, rt.n_star`;
         const orderByQuery = `ORDER BY rt.created_at DESC`;
-        const query = `Select rt.rating_id, us.user_id, us.fullname, us.user_ava, rt.content, rt.user_status, rt.n_star, rt.created_at, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} where rt.isHidden = 0 AND rt.book_id = ${book_id} ${groupbyRatingQuery} ${orderByQuery}`;
+        const query = `Select rt.rating_id, rl.content as reply_content, rl.created_at as reply_time, us.user_id, us.fullname, us.user_ava, rt.content, rt.user_status, rt.n_star, rt.created_at, GROUP_CONCAT(ri.url) as urls from ratings rt ${imageRatingQuery} ${userquery} ${replyRatingQuery} where rt.isHidden = 0 AND rt.book_id = ${book_id} ${groupbyRatingQuery} ${orderByQuery}`;
         const data = await db.query(query);
         return data[0];
     }

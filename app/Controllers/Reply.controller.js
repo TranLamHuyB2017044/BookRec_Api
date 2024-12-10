@@ -12,7 +12,6 @@ exports.createNewReplyPost = async (req, res) => {
     const post = new Reply(
         generateRandomNumberWithDigits(5),
         parseInt(req.body.rating_id),
-        parseInt(req.body.book_id),
         req.body.content,
     )
     try {
